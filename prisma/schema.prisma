@@ -1,0 +1,90 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Student {
+  id              String           @id @default(uuid())
+  name            String?
+  studentId       String           @unique
+  hashedPassword  String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime?        @updatedAt
+  accounts        StudentAccount[]
+  answers         Answer[]         // 生徒が回答した内容を保持
+}
+
+model Admin {
+  id              String           @id @default(uuid())
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?
+  hashedPassword  String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime?        @updatedAt
+  accounts        AdminAccount[]
+  questions       Question[]       // 管理者が作成した問題を保持
+}
+
+model StudentAccount {
+  id                String           @id @default(uuid())
+  studentId         String
+  type              String
+  Studentprovider          String
+  StudentproviderAccountId String
+  refreshToken      String?
+  accessToken       String?
+  expiresAt         DateTime?
+  tokenType         String?
+  scope             String?
+  idToken           String?
+  sessionState      String?
+  student           Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([Studentprovider, StudentproviderAccountId])
+}
+
+model AdminAccount {
+  id                String           @id @default(uuid())
+  adminId           String
+  type              String
+  Adminprovider          String
+  AdminproviderAccountId String
+  refreshToken      String?
+  accessToken       String?
+  expiresAt         DateTime?
+  tokenType         String?
+  scope             String?
+  idToken           String?
+  sessionState      String?
+  admin             Admin            @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@unique([Adminprovider, AdminproviderAccountId])
+}
+
+model Question {
+  id               Int              @id @default(autoincrement())
+  text             String           // 問題文
+  correctAnswer    String?          // 正解を保持
+  createdBy        Admin            @relation(fields: [adminId], references: [id])
+  adminId          String           // 作成者 (Admin) のID
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime?        @updatedAt
+
+  answers          Answer[]         // この問題への回答を保持
+}
+
+model Answer {
+  id               Int              @id @default(autoincrement())
+  student          Student          @relation(fields: [studentId], references: [id])
+  studentId        String           // 回答者 (Student) のID
+  question         Question         @relation(fields: [questionId], references: [id])
+  questionId       Int              // 回答した問題のID
+  isCorrect        Boolean          // 正解・不正解の判定
+  submittedAnswer  String?          // 提出した回答内容
+  answeredAt       DateTime         @default(now()) // 回答日時
+}

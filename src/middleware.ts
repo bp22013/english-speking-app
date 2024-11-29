@@ -3,13 +3,15 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
+    const cookie = cookies();
 
     // 管理者ルートの保護
     if (pathname.startsWith("/Admindashboard")) {
-        const adminToken = request.cookies.get("admintoken")?.value;
+        const adminToken = (await cookie).get("admintoken")?.value;
 
         if (!adminToken) {
             // トークンがない場合はログインページにリダイレクト
@@ -27,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
     // 生徒ルートの保護
     if (pathname.startsWith("/dashboard")) {
-        const studentToken = request.cookies.get("studenttoken")?.value;
+        const studentToken = (await cookie).get("studenttoken")?.value;
 
         if (!studentToken) {
             // トークンがない場合はログインページにリダイレクト

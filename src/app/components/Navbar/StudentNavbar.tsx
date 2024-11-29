@@ -3,10 +3,10 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { MdMessage } from "react-icons/md";
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { StudentUseAuth } from '@/hooks/useAuth/StudentUseAuth';
 import { Popover, PopoverTrigger, PopoverContent, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link, Navbar, NavbarContent, NavbarMenuToggle, NavbarBrand, NavbarItem, NavbarMenu, NavbarMenuItem } from '@nextui-org/react';
 import toast from 'react-hot-toast';
@@ -22,8 +22,13 @@ export const StudentNavigationbar = () => {
     const router = useRouter();
     const pathname: string = usePathname();
 
-    function isActive(link: string): boolean {
+    const isActive = (link: string): boolean => {
         return pathname === link;
+    }
+
+    const PushNotification = () => {
+        router.push("/dashboard/notification");
+        router.refresh();
     }
 
     const MenuItems: NavItemProps[] = [
@@ -115,12 +120,7 @@ export const StudentNavigationbar = () => {
 
                     <NavbarContent className="ml-auto flex ml-64 mr-auto">
                         <Popover placement="bottom">
-                            <PopoverTrigger>
-                                <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} />
-                            </PopoverTrigger>
-                            <PopoverContent>
-                                <p className="p-4">お知らせ</p>
-                            </PopoverContent>
+                            <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification}/>
                         </Popover>
                         <Popover placement="bottom">
                             <PopoverTrigger>

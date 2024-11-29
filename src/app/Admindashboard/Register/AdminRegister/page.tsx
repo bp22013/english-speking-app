@@ -37,7 +37,7 @@ const RegisterAdminPage: NextPage = () => {
     const onRegister: SubmitHandler<InputsType> = async (data) => {
         setIsLoading(true);
         try{
-            const response = await fetch("/api/auth/register/student", {
+            const response = await fetch("/api/auth/register/admin", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -86,7 +86,7 @@ const RegisterAdminPage: NextPage = () => {
                                 autoFocus
                                 isClearable
                                 label="新しいメールアドレス"
-                                placeholder="新しい管理者IDを入力してください"
+                                placeholder="新しいメールアドレスを入力してください"
                                 variant="underlined"
                                 color={errors.email ? "danger" : "primary"}
                                 className="bg-blue-200 mt-8"

@@ -2,13 +2,13 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { MdMessage } from "react-icons/md";
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { StudentUseAuth } from '@/hooks/useAuth/StudentUseAuth';
-import { Popover, PopoverTrigger, PopoverContent, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link, Navbar, NavbarContent, NavbarMenuToggle, NavbarBrand, NavbarItem, NavbarMenu, NavbarMenuItem } from '@nextui-org/react';
+import { Popover, Badge, PopoverTrigger, PopoverContent, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link, Navbar, NavbarContent, NavbarMenuToggle, NavbarBrand, NavbarItem, NavbarMenu, NavbarMenuItem } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 
 export interface NavItemProps {
@@ -17,19 +17,52 @@ export interface NavItemProps {
 }
 
 export const StudentNavigationbar = () => {
-
     const loginuser = StudentUseAuth();
     const router = useRouter();
     const pathname: string = usePathname();
+    const [unreadCount, setUnreadCount] = useState(0); // 新規通知数を管理する状態
 
     const isActive = (link: string): boolean => {
         return pathname === link;
-    }
+    };
 
     const PushNotification = () => {
         router.push("/dashboard/notification");
         router.refresh();
-    }
+    };
+
+    
+    // 新規通知数を取得する関数
+    const fetchUnreadCount = async () => {
+        try {
+            const response = await fetch("/api/notification/GetNumberOfNewNotification", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    studentId: loginuser.studentId, // 生徒IDを送信
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setUnreadCount(data.unreadCount || 0); // 通知数を更新
+            } else {
+                console.error("Failed to fetch unread notifications:", data.error);
+            }
+        } catch (error) {
+            console.error("Error fetching unread notifications:", error);
+        }
+    };
+
+    // コンポーネントの初回マウント時に新規通知数を取得
+    useEffect(() => {
+        if (loginuser.studentId) {
+            fetchUnreadCount();
+        }
+    }, [loginuser.studentId]);
 
     const MenuItems: NavItemProps[] = [
         {
@@ -46,9 +79,9 @@ export const StudentNavigationbar = () => {
         },
     ];
 
+    //ログアウト用関数
     const handleLogout = async (studentId: string) => {
         try {
-            // サーバーにログアウトリクエストを送信
             const res = await fetch("/api/auth/logout/student", {
                 method: "POST",
                 headers: {
@@ -56,11 +89,10 @@ export const StudentNavigationbar = () => {
                 },
                 body: JSON.stringify({ studentId }),
             });
-    
+
             const data = await res.json();
             if (data.success) {
                 toast.success("ログアウト成功");
-                // 必要に応じてページをリダイレクト
                 router.push("/");
                 router.refresh();
             } else {
@@ -118,10 +150,16 @@ export const StudentNavigationbar = () => {
                         </div>
                     </NavbarContent>
 
-                    <NavbarContent className="ml-auto flex ml-64 mr-auto">
-                        <Popover placement="bottom">
-                            <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification}/>
-                        </Popover>
+                    <NavbarContent className="ml-auto flex ml-64 mr-auto relative">
+                        <div className="relative">
+                            {unreadCount > 0 ? (
+                                <Badge content={unreadCount} size='md' color='danger'>
+                                    <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                                </Badge>
+                            ) : (
+                                <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                            )}
+                        </div>
                         <Popover placement="bottom">
                             <PopoverTrigger>
                                 <MdMessage size={28} style={{ cursor: 'pointer' }} />

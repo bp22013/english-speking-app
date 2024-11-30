@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 
 export const StudentUseAuth = () => {
     const [loginUser, setLoginUser] = useState({
+        id: "",
         studentId: "",
         exp: 0,
         username: "",

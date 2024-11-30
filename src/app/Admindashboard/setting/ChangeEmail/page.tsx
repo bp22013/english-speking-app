@@ -93,7 +93,10 @@ const ChangeEmailPage: NextPage = () => {
                                 placeholder="新しいメールアドレスを入力してください"
                                 variant="underlined"
                                 color={errors.email ? "danger" : "success"}
-                                className="bg-blue-200 mt-8"
+                                className={clsx(
+                                    "mt-8",
+                                    errors.email ? "bg-red-200" : "bg-blue-200"
+                                )}
                             />
                             {errors.email && (
                                 <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
@@ -106,7 +109,10 @@ const ChangeEmailPage: NextPage = () => {
                                 placeholder="もう一度メールアドレスを入力してください"
                                 variant="underlined"
                                 color={errors.confirmEmail ? "danger" : "success"}
-                                className="bg-blue-200 mt-8"
+                                className={clsx(
+                                    "mt-8",
+                                    errors.confirmEmail ? "bg-red-200" : "bg-blue-200"
+                                )}
                             />
                             {errors.confirmEmail && (
                                 <p className="text-red-500 text-xs mt-1">{errors.confirmEmail.message}</p>

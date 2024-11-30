@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
         const update_time = student.updatedAt || new Date();
 
         const payload = {
+            Id: student.id,
             studentId: student.studentId,
             username: student.name,
             updateAt_year: update_time.getFullYear(),

@@ -1,5 +1,3 @@
-/* 生徒用設定ページ */
-
 'use client';
 
 import { NextPage } from "next";
@@ -12,9 +10,9 @@ import { InputsType, inputs } from "@/schema/ChangeStudentSchema";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { StudentUseAuth } from "@/hooks/useAuth/StudentUseAuth";
 import toast from "react-hot-toast";
+import clsx from "clsx"; // クラス名を動的に管理するためのライブラリ
 
 const SettingPage: NextPage = () => {
-
     const loginuser = StudentUseAuth();
     const router = useRouter();
     const [studentId, setStudentId] = useState('');
@@ -27,8 +25,8 @@ const SettingPage: NextPage = () => {
     } = useForm<InputsType>({
         resolver: zodResolver(inputs)
     });
-    
-    //変更処理
+
+    // 変更処理
     const onSubmit: SubmitHandler<InputsType> = async (data) => {
         try {
             const response = await fetch("/api/update/student", {
@@ -42,14 +40,14 @@ const SettingPage: NextPage = () => {
                     newName: data.name,
                 }),
             });
-    
+
             const responseData = await response.json();
-    
+
             if (!responseData.success) {
                 toast.error(responseData.message);
                 router.refresh();
             }
-    
+
             toast.success(responseData.message);
             router.push("/");
             router.refresh();
@@ -57,11 +55,10 @@ const SettingPage: NextPage = () => {
             toast.error("エラーが発生しました:" + error);
         }
     };
-    
 
-    return(
+    return (
         <>
-            <div className='bg-blue-100 min-h-screen'>
+            <div className="bg-blue-100 min-h-screen">
                 <StudentNavigationbar />
                 <div style={{ marginLeft: '350px' }} className="mt-10">
                     <div className="text-4xl">
@@ -78,8 +75,11 @@ const SettingPage: NextPage = () => {
                                 placeholder="新しい生徒IDを入力して下さい"
                                 variant="underlined"
                                 value={studentId}
-                                color="success"
-                                className="w-64 bg-blue-200"
+                                color={errors.studentId ? "danger" : "primary"}
+                                className={clsx(
+                                    "w-64", 
+                                    errors.studentId ? "bg-red-200" : "bg-blue-200"
+                                )}
                                 onChange={(e) => setStudentId(e.target.value)}
                             />
                             <p className=" ml-5 my-auto">現在のID : {loginuser.studentId}</p>
@@ -91,9 +91,12 @@ const SettingPage: NextPage = () => {
                                 label="Name"
                                 placeholder="新しい名前を入力して下さい"
                                 variant="underlined"
-                                color="success"
+                                color={errors.name ? "danger" : "primary"}
                                 value={name}
-                                className="w-64 bg-blue-200"
+                                className={clsx(
+                                    "w-64",
+                                    errors.name ? "bg-red-200" : "bg-blue-200"
+                                )}
                                 onChange={(e) => setName(e.target.value)}
                             />
                             <p className=" ml-5 my-auto">現在の名前 : {loginuser.username}</p>
@@ -107,6 +110,6 @@ const SettingPage: NextPage = () => {
             </div>
         </>
     );
-}
+};
 
 export default SettingPage;

@@ -97,7 +97,10 @@ const ChangeEmailPage: NextPage = () => {
                                 placeholder="新しいパスワードを入力してください"
                                 variant="underlined"
                                 color={errors.password ? "danger" : "primary"}
-                                className="bg-blue-200 mt-8"
+                                className={clsx(
+                                    "mt-8",
+                                    errors.name ? "bg-red-200" : "bg-blue-200"
+                                )}
                                 endContent={
                                     <button
                                         className="focus:outline-none"
@@ -125,7 +128,10 @@ const ChangeEmailPage: NextPage = () => {
                                 placeholder="もう一度パスワードを入力してください"
                                 variant="underlined"
                                 color={errors.confirmPassword ? "danger" : "primary"}
-                                className="bg-blue-200 mt-8"
+                                className={clsx(
+                                    "mt-8",
+                                    errors.name ? "bg-red-200" : "bg-blue-200"
+                                )}
                                 endContent={
                                     <button
                                         className="focus:outline-none"

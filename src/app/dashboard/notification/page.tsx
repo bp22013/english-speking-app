@@ -52,7 +52,7 @@ export default function NotificationPage() {
     }, [loginuser.studentId]);
 
     // 通知を既読にする関数
-    async function markAsRead(notificationId, studentId) {
+    async function markAsRead(notificationId: number, studentId: string) {
         try {
             const response = await fetch("/api/notification/MarkNotification", {
                 method: "POST",
@@ -61,12 +61,11 @@ export default function NotificationPage() {
                 },
                 body: JSON.stringify({ notificationId, studentId }), // 通知IDと生徒IDを送信
             });
-
+    
             const data = await response.json();
             if (response.ok) {
                 toast.success(data.message);
-                // 通知を再取得
-                await fetchNotifications();
+                // 通知一覧を再取得するなど、状態を更新する処理を追加可能
             } else {
                 toast.error(data.error);
             }
@@ -74,6 +73,7 @@ export default function NotificationPage() {
             toast.error("不明なエラーが発生しました");
         }
     }
+    
 
     return (
         <div className="bg-blue-100 min-h-screen flex flex-col">

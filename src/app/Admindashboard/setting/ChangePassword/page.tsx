@@ -100,7 +100,7 @@ const ChangeEmailPage: NextPage = () => {
                                 color={errors.password ? "danger" : "primary"}
                                 className={clsx(
                                     "mt-8",
-                                    errors.name ? "bg-red-200" : "bg-blue-200"
+                                    errors.password ? "bg-red-200" : "bg-blue-200"
                                 )}
                                 endContent={
                                     <button
@@ -131,7 +131,7 @@ const ChangeEmailPage: NextPage = () => {
                                 color={errors.confirmPassword ? "danger" : "primary"}
                                 className={clsx(
                                     "mt-8",
-                                    errors.name ? "bg-red-200" : "bg-blue-200"
+                                    errors.confirmPassword ? "bg-red-200" : "bg-blue-200"
                                 )}
                                 endContent={
                                     <button

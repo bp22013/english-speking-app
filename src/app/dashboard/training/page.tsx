@@ -4,8 +4,6 @@
 
 import { NextPage } from "next";
 import { StudentNavigationbar } from "@/app/components/Navbar/StudentNavbar";
-import { Button, Input } from "@nextui-org/react";
-import { useState } from "react";
 
 const TrainingPage: NextPage = () => {
     return(

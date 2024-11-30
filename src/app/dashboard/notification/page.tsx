@@ -16,10 +16,12 @@ type Notification = {
 
 export default function NotificationPage() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const loginuser = StudentUseAuth();
 
     // 通知を取得する関数
     const fetchNotifications = async () => {
+        setIsLoading(true);
         try {
             const response = await fetch("/api/notification/GetNotification", {
                 method: "POST",
@@ -41,6 +43,8 @@ export default function NotificationPage() {
             console.error("Error fetching notifications:", error);
             toast.error("通知の取得に失敗しました。");
             setNotifications([]); // エラー時に空配列をセット
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -65,7 +69,8 @@ export default function NotificationPage() {
             const data = await response.json();
             if (response.ok) {
                 toast.success(data.message);
-                // 通知一覧を再取得するなど、状態を更新する処理を追加可能
+                // 通知一覧を再取得
+                await fetchNotifications();
             } else {
                 toast.error(data.error);
             }
@@ -80,7 +85,9 @@ export default function NotificationPage() {
             <StudentNavigationbar />
             <h1>通知一覧</h1>
             <ul>
-                {Array.isArray(notifications) && notifications.length > 0 ? (
+                {isLoading ? (
+                    <p>通知を取得中です...</p>
+                ) : Array.isArray(notifications) && notifications.length > 0 ? (
                     notifications.map((notification) => (
                         <li key={notification.id} style={{ marginBottom: "1rem" }}>
                             <p>{notification.message}</p>

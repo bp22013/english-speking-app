@@ -61,28 +61,20 @@ export const PrevConfirmModal: React.FC<PrevConfirmModalProps> = (props) => {
         }
     };
 
-    // モーダルを表示してページ離脱確認
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-        event.preventDefault();
-        event.returnValue = ""; // この設定でブラウザの確認メッセージが表示される
-    };
-
-    // ブラウザの戻るボタンを押した際にモーダルを表示
-    const handlePopState = () => {
-        setIsNavigationBlocked(true);
-        props.ChangeFlag();
-    };
-
-    // イベントリスナーを追加
     useEffect(() => {
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        window.addEventListener("popstate", handlePopState);
+        history.pushState(null, null, null);
+        
+        window.addEventListener("beforeunload", function(e){
+            this.history.pushState(null, null, null);
+            return;
+        });
+        
+        window.addEventListener("popstate", function(e){
+            this.history.pushState(null, null, null);
+            return;
+        });
 
-        return () => {
-        // クリーンアップ
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.removeEventListener("popstate", handlePopState);
-        };
+        return;
     }, []);
 
     return (

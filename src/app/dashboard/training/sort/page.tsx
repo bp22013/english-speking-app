@@ -29,36 +29,51 @@ const TrainingSortPage: NextPage = () => {
     const loginuser = StudentUseAuth();
     const router = useRouter();
 
-  // 問題を取得
+    // Web Speech API を使用して単語を発音
+    const speak = (text: string) => {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US'; // 英語（アメリカ）
+            speechSynthesis.speak(utterance);
+        } else {
+            console.error('Speech Synthesis API is not supported in this browser.');
+        }
+    };
+
+    // 問題を取得
     useEffect(() => {
         const fetchQuestions = async () => {
-        try {
-            setIsQuestionsLoading(true);
-            const res = await fetch("/api/training/GetQuestion/sort");
-            const data = await res.json();
+            try {
+                setIsQuestionsLoading(true);
+                const res = await fetch("/api/training/GetQuestion/sort");
+                const data = await res.json();
 
-            // ランダムに10問を選択
-            const randomQuestions = data.questions.sort(() => 0.5 - Math.random()).slice(0, 10);
-            setQuestions(randomQuestions);
-        } catch {
-            toast.error("問題の取得中にエラーが発生しました");
-        } finally {
-            setIsQuestionsLoading(false);
-        }
+                // ランダムに10問を選択
+                const randomQuestions = data.questions.sort(() => 0.5 - Math.random()).slice(0, 10);
+                setQuestions(randomQuestions);
+            } catch {
+                toast.error("問題の取得中にエラーが発生しました");
+            } finally {
+                setIsQuestionsLoading(false);
+            }
         };
 
         fetchQuestions();
     }, []);
 
-  // ページ離脱を検知するイベントリスナーを追加
+    // ページ離脱を検知するイベントリスナーを追加
     useEffect(() => {
+        history.pushState(null, null, null);
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
             event.preventDefault();
-            event.returnValue = ""; // ブラウザの確認メッセージを表示
+            setShowModal(true);
+            return;
         };
 
         const handlePopState = () => {
-            setShowModal(true); // モーダルを表示
+            setShowModal(true);
+            history.pushState(null, null, null);
+            return;
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
@@ -101,6 +116,9 @@ const TrainingSortPage: NextPage = () => {
                 } else {
                     toast.error(data.message); // 不正解の場合
                 }
+
+                // 音声で単語を発音
+                speak(currentQuestion.correctAnswer);
 
                 // 解答済み問題IDを更新
                 setAnsweredQuestionIds((prev) => [...prev, currentQuestion.id]);

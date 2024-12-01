@@ -1,24 +1,58 @@
+/* 仕分けページ採点＆保存用API */
+
+'use server';
+
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
-    try {
-        const { answers, studentId } = await request.json();
+  try {
+    const { questionId, submittedAnswer, studentId } = await request.json();
 
-        // `answers`の形式: { [questionId: number]: string }
-        const data = Object.entries(answers).map(([questionId, submittedAnswer]) => ({
-            questionId: parseInt(questionId, 10),
-            submittedAnswer,
-            studentId: studentId, // 実際のログイン生徒IDを取得
-            isCorrect: false, // 必要に応じて判定ロジックを追加
-        }));
+    // 正解を取得
+    const question = await prisma.question.findUnique({
+      where: { id: questionId },
+      select: { correctAnswer: true },
+    });
 
-        await prisma.answer.createMany({ data });
-
-        return NextResponse.json({ message: "回答が保存されました" });
-    } catch {
-        return NextResponse.json({ error: "回答の保存に失敗しました" }, { status: 500 });
+    if (!question) {
+      return NextResponse.json({ error: "問題が見つかりませんでした:" }, { status: 404 });
     }
+
+    // 採点
+    const isCorrect = question.correctAnswer === submittedAnswer;
+
+    // studentId に基づいて学生のデータを取得
+    const student = await prisma.student.findUnique({
+      where: { studentId },
+      select: { id: true },
+    });
+
+    if (!student) {
+      return NextResponse.json({ error: "生徒が見つかりませんでした:" + studentId }, { status: 404 });
+    }
+
+    // 学生IDを取得
+    const currentUserId = student.id;
+
+    // 回答を保存
+    await prisma.answer.create({
+      data: {
+        questionId,
+        submittedAnswer,
+        studentId: currentUserId,
+        isCorrect,
+      },
+    });
+
+    return NextResponse.json({
+      message: isCorrect ? "正解です！" : "不正解です。",
+      isCorrect,
+    });
+  } catch (error) {
+    console.error("エラー発生:", error);
+    return NextResponse.json({ error: "採点処理に失敗しました" }, { status: 500 });
+  }
 }

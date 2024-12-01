@@ -5,7 +5,11 @@
 import { Navbar, NavbarContent, useDisclosure, Button } from "@nextui-org/react";
 import { PrevConfirmModal } from "../Modal/PrevConfirmModal";
 
-export const TrainingPageNavbar = () => {
+interface QuestionProps {
+    answeredQuestionIds: number[];
+}
+
+export const TrainingPageNavbar: React.FC<QuestionProps> = (props) => {
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const apiUrl = "/api/training/PrevPage/sort"
@@ -20,7 +24,7 @@ export const TrainingPageNavbar = () => {
                         </Button>
                     </NavbarContent>
                 </Navbar>
-                <PrevConfirmModal showFlag={isOpen} ChangeFlag={onOpenChange} apiUrl={apiUrl} />
+                <PrevConfirmModal showFlag={isOpen} ChangeFlag={onOpenChange} apiUrl={apiUrl} answeredQuestionIds={props.answeredQuestionIds} />
             </div>
         </>
     );

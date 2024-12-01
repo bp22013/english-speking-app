@@ -12,27 +12,24 @@ export const Training = () => {
 
     // 仕分けページへプッシュ
     const PushSortPage = () => {
-        router.push();
-        router.refresh("/dashboard/training/sort");
+        router.push("/dashboard/training/sort");
     }
 
     // ドリルページにプッシュ
     const PushDrillPage = () => {
         router.push("/dashboard/training/drill");
-        router.refresh();
     }
 
     // 復習ページへプッシュ
     const PushReviewPage = () => {
         router.push("/dashboard/training/review");
-        router.refresh();
     }
 
     return (
         <>
             <div className="container mx-auto px-4 flex flex-col items-center transform scale-100 md:scale-90 sm:scale-60 sm:mt-10 ">
                 <div className="flex justify-center sm:mb-14 mb-8">
-                    <Card className="w-[160px] h-[215px] sm:w-[140px] sm:h-[190px]" onClick={PushSortPage}>
+                    <Card className="w-[160px] h-[215px] sm:w-[140px] sm:h-[190px]" isPressable onPress={PushSortPage}>
                         <CardHeader className="flex items-center justify-center gap-2 text-2xl sm:text-xl h-[45px] sm:h-[40px]">
                             <p>
                                 <strong>仕分け</strong>
@@ -56,7 +53,7 @@ export const Training = () => {
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-20 lg:gap-48">
-                    <Card className="w-[160px] h-[215px] sm:w-[140px] sm:h-[190px]" onClick={PushDrillPage}>
+                    <Card className="w-[160px] h-[215px] sm:w-[140px] sm:h-[190px]" isPressable onPress={PushDrillPage}>
                         <CardHeader className="flex items-center justify-center gap-2 text-2xl sm:text-xl h-[45px] sm:h-[40px]">
                             <p>
                                 <strong>ドリル</strong>
@@ -78,7 +75,7 @@ export const Training = () => {
                         </CardFooter>
                     </Card>
 
-                    <Card className="w-[160px] h-[215px] sm:w-[140px] sm:h-[190px]" onClick={PushReviewPage}>
+                    <Card className="w-[160px] h-[215px] sm:w-[140px] sm:h-[190px]" isPressable onPress={PushReviewPage}>
                         <CardHeader className="flex items-center justify-center gap-2 text-2xl sm:text-xl h-[45px] sm:h-[40px]">
                             <p>
                                 <strong>復習</strong>

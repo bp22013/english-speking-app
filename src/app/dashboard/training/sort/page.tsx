@@ -56,12 +56,12 @@ const TrainingSortPage: NextPage = () => {
         history.pushState(null, null, null);
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
             event.preventDefault();
-            setShowModal(true);
+            handleModalOpen(true);
             return;
         };
 
         const handlePopState = () => {
-            setShowModal(true);
+            handleModalOpen(true);
             history.pushState(null, null, null);
             return;
         };

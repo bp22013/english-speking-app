@@ -61,12 +61,12 @@ export const PrevConfirmModal: React.FC<PrevConfirmModalProps> = (props) => {
     useEffect(() => {
         history.pushState(null, null, null);
         
-        window.addEventListener("beforeunload", function(e){
+        window.addEventListener("beforeunload", function(){
             this.history.pushState(null, null, null);
             return;
         });
         
-        window.addEventListener("popstate", function(e){
+        window.addEventListener("popstate", function(){
             this.history.pushState(null, null, null);
             return;
         });

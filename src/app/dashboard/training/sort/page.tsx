@@ -53,16 +53,16 @@ const TrainingSortPage: NextPage = () => {
 
     // ページ離脱を検知するイベントリスナーを追加
     useEffect(() => {
-        history.pushState(null, null, null);
+        history.pushState(null, "", null);
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
             event.preventDefault();
-            handleModalOpen(true);
+            handleModalOpen();
             return;
         };
 
         const handlePopState = () => {
-            handleModalOpen(true);
-            history.pushState(null, null, null);
+            handleModalOpen();
+            history.pushState(null, "", null);
             return;
         };
 

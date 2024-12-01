@@ -1,4 +1,4 @@
-/* ドリルページの送信API */
+/* 復習ページの送信API */
 
 'use server';
 
@@ -28,19 +28,18 @@ export async function POST(request: Request) {
         // 学生IDを取得
         const currentUserId = student.id;
 
-        // 既に解答済みでisCorrectがfalseのレコードを取得
+        // ANSWERテーブルから既に解答済みのレコードを取得
         const existingAnswer = await prisma.answer.findFirst({
             where: {
                 questionId: questionId,
                 studentId: currentUserId,
-                isCorrect: false, // isCorrectがfalseのもののみ
             },
         });
 
         if (!existingAnswer) {
-            // 解答済みかつisCorrectがfalseのエントリが存在しない場合
+            // 解答が存在しない場合
             return NextResponse.json(
-                { error: "更新対象の解答が見つかりません" },
+                { error: "対象の解答が見つかりません" },
                 { status: 404 }
             );
         }
@@ -60,30 +59,37 @@ export async function POST(request: Request) {
             );
         }
 
-        // 解答が正しいかどうかを確認
+        // 解答の正誤判定
         const isCorrect = question.correctAnswer === submittedAnswer;
 
-        // ANSWERテーブルを更新
-        if (isCorrect) {
+        if (!isCorrect && existingAnswer.isCorrect) {
+            // 回答が間違っていて、isCorrectがtrueの場合にfalseに更新
             await prisma.answer.update({
                 where: {
                     id: existingAnswer.id, // 対象のANSWERレコード
                 },
                 data: {
-                    isCorrect: true, // 正解に更新
+                    isCorrect: false,
                 },
+            });
+
+            return NextResponse.json({
+                message: "不正解です。",
+                isCorrect: false,
             });
         }
 
-        // 結果を返す
+        // 正しい場合は何もせずそのまま返す
         return NextResponse.json({
-            message: isCorrect ? "正解です！" : "不正解です。",
+            message: isCorrect
+                ? "正解です！"
+                : "不正解です。",
             isCorrect: isCorrect,
         });
     } catch (error) {
         console.error(error);
         return NextResponse.json(
-            { error: "解答の処理中にエラーが発生しました" },
+            { error: "サーバーエラーが発生しました" },
             { status: 500 }
         );
     }

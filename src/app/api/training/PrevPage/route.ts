@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         });
 
         if (!student) {
-        return NextResponse.json({ error: "生徒が見つかりませんでした: " + studentId }, { status: 404 });
+            return NextResponse.json({ error: "生徒が見つかりませんでした: " + studentId }, { status: 404 });
         }
 
         // 学生IDを取得

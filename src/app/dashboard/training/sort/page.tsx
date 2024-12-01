@@ -7,14 +7,15 @@ import { useState, useEffect } from "react";
 import { Input, Button, Spinner } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { TrainingPageNavbar } from "@/app/components/Navbar/TrainingPageNavbar";
-import { PrevConfirmModal } from "@/app/components/Modal/PrevConfirmModal"; // モーダルをインポート
+import { PrevConfirmModal } from "@/app/components/Modal/PrevConfirmModal";
 import { StudentUseAuth } from "@/hooks/useAuth/StudentUseAuth";
+import { speak } from "@/lib/WebSpeechApi";
 import toast from "react-hot-toast";
 
 interface Question {
     id: number;
     text: string;
-    correctAnswer: string; // 正解
+    correctAnswer: string;
 }
 
 const TrainingSortPage: NextPage = () => {
@@ -28,17 +29,6 @@ const TrainingSortPage: NextPage = () => {
     const [isQuestionsLoading, setIsQuestionsLoading] = useState(true); // 問題取得中状態
     const loginuser = StudentUseAuth();
     const router = useRouter();
-
-    // Web Speech API を使用して単語を発音
-    const speak = (text: string) => {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US'; // 英語（アメリカ）
-            speechSynthesis.speak(utterance);
-        } else {
-            console.error('Speech Synthesis API is not supported in this browser.');
-        }
-    };
 
     // 問題を取得
     useEffect(() => {
@@ -222,7 +212,6 @@ const TrainingSortPage: NextPage = () => {
                 <PrevConfirmModal
                     showFlag={showModal}
                     ChangeFlag={handleModalClose}
-                    apiUrl="/api/training/DeleteAnswers"
                     answeredQuestionIds={answeredQuestionIds}
                 />
             </div>

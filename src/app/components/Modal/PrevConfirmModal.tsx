@@ -11,7 +11,6 @@ import toast from 'react-hot-toast';
 interface PrevConfirmModalProps {
     showFlag: boolean;
     ChangeFlag: () => void;
-    apiUrl?: string;
     answeredQuestionIds: number[]; // 回答済み問題ID
 }
 
@@ -20,8 +19,6 @@ export const PrevConfirmModal: React.FC<PrevConfirmModalProps> = (props) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isNavigationBlocked, setIsNavigationBlocked] = useState(false);
     const loginuser = StudentUseAuth();
-
-    const apiUrl = props.apiUrl || "";
 
     // トレーニングページから離れる処理
     const handleLeavePage = async () => {
@@ -34,14 +31,14 @@ export const PrevConfirmModal: React.FC<PrevConfirmModalProps> = (props) => {
 
         setIsLoading(true);
         try {
-            const res = await fetch(apiUrl, {
+            const res = await fetch("/api/training/PrevPage", {
                 method: "POST",
                 headers: {
                 "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                studentId: loginuser.studentId,
-                questionIds: props.answeredQuestionIds, // 回答済み問題IDを送信
+                    studentId: loginuser.studentId,
+                    questionIds: props.answeredQuestionIds, // 回答済み問題IDを送信
                 }),
             });
 
@@ -55,7 +52,7 @@ export const PrevConfirmModal: React.FC<PrevConfirmModalProps> = (props) => {
                 toast.error(data.error || "データ削除に失敗しました");
             }
         } catch (error) {
-            toast.error("エラーが発生しました");
+            toast.error("エラーが発生しました:" + error);
         } finally {
             setIsLoading(false);
         }

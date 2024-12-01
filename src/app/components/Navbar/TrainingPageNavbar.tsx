@@ -12,7 +12,6 @@ interface QuestionProps {
 export const TrainingPageNavbar: React.FC<QuestionProps> = (props) => {
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const apiUrl = "/api/training/PrevPage/sort"
 
     return(
         <>
@@ -24,7 +23,7 @@ export const TrainingPageNavbar: React.FC<QuestionProps> = (props) => {
                         </Button>
                     </NavbarContent>
                 </Navbar>
-                <PrevConfirmModal showFlag={isOpen} ChangeFlag={onOpenChange} apiUrl={apiUrl} answeredQuestionIds={props.answeredQuestionIds} />
+                <PrevConfirmModal showFlag={isOpen} ChangeFlag={onOpenChange} answeredQuestionIds={props.answeredQuestionIds} />
             </div>
         </>
     );

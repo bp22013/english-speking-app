@@ -9,6 +9,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { InputsType, inputs } from "@/schema/AdminLoginSchema";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { EyeSlashFilledIcon } from "@/app/components/Icon/EyeSlashFilledIcon";
+import { EyeFilledIcon } from "@/app/components/Icon/EyeFilledIcon";
 
 interface AdminModalProps {
     showFlag: boolean;
@@ -19,6 +21,8 @@ export const AdminLoginModal: React.FC<AdminModalProps> = (props) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const [isVisible, setIsVisible] = useState(false);
+    const toggleVisibility = () => setIsVisible(!isVisible);
 
     const {
         register,
@@ -65,48 +69,64 @@ export const AdminLoginModal: React.FC<AdminModalProps> = (props) => {
     };
 
     return (
-        <Modal backdrop="blur" isOpen={props.showFlag} onOpenChange={onChangeModal}>
-            <ModalContent>
-                {(onClose) => (
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <ModalHeader className="flex flex-col gap-1">ログイン情報を入力</ModalHeader>
-                        <ModalBody className="items-center justify-center">
-                            <Input
-                                {...register("email")}
-                                autoFocus
-                                label="email"
-                                placeholder="メールアドレスを入力してください"
-                                variant="bordered"
-                            />
-                            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+        <>
+            <Modal backdrop="blur" isOpen={props.showFlag} onOpenChange={onChangeModal}>
+                <ModalContent>
+                    {(onClose) => (
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <ModalHeader className="flex flex-col gap-1">ログイン情報を入力</ModalHeader>
+                            <ModalBody className="items-center justify-center">
+                                <Input
+                                    {...register("email")}
+                                    autoFocus
+                                    label="email"
+                                    placeholder="メールアドレスを入力してください"
+                                    variant="bordered"
+                                />
+                                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
 
-                            <Input
-                                {...register("password")}
-                                label="Password"
-                                placeholder="パスワードを入力してください"
-                                type="password"
-                                variant="bordered"
-                            />
-                            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+                                <Input
+                                    {...register("password")}
+                                    label="Password"
+                                    placeholder="パスワードを入力してください"
+                                    variant="bordered"
+                                    endContent={
+                                        <button
+                                            className="focus:outline-none"
+                                            type="button"
+                                            onClick={toggleVisibility}
+                                            aria-label="toggle password visibility"
+                                        >
+                                            {isVisible ? (
+                                                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                            ) : (
+                                                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                            )}
+                                        </button>
+                                    }
+                                    type={isVisible ? "text" : "password"}
+                                />
+                                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
 
-                            <div className="flex py-2 px-1 justify-between">
-                                <Spacer className="px-14" />
-                                <Link color="primary" href="#" size="sm">
-                                    Forgot password?
-                                </Link>
-                            </div>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="danger" variant="light" onPress={onClose}>
-                                キャンセル
-                            </Button>
-                            <Button color="primary" type="submit" disabled={isLoading}>
-                                {isLoading ? "ログイン中..." : "ログイン"}
-                            </Button>
-                        </ModalFooter>
-                    </form>
-                )}
-            </ModalContent>
-        </Modal>
+                                <div className="flex py-2 px-1 justify-between">
+                                    <Spacer className="px-14" />
+                                    <Link color="primary" href="#" size="sm">
+                                        Forgot password?
+                                    </Link>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="danger" variant="light" onPress={onClose}>
+                                    キャンセル
+                                </Button>
+                                <Button color="primary" type="submit" disabled={isLoading}>
+                                    {isLoading ? "ログイン中..." : "ログイン"}
+                                </Button>
+                            </ModalFooter>
+                        </form>
+                    )}
+                </ModalContent>
+            </Modal>
+        </>
     );
 };

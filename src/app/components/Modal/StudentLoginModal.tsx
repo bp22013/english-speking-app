@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { InputsType, inputs } from "@/schema/StudentLoginSchema";
+import { EyeSlashFilledIcon } from "@/app/components/Icon/EyeSlashFilledIcon";
+import { EyeFilledIcon } from "@/app/components/Icon/EyeFilledIcon";
 import toast from "react-hot-toast";
 
 interface StudentModalProps {
@@ -19,6 +21,8 @@ export const StudentLoginModal: React.FC<StudentModalProps> = (props) => {
 
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const toggleVisibility = () => setIsVisible(!isVisible);
 
     const {
         register,
@@ -85,8 +89,22 @@ export const StudentLoginModal: React.FC<StudentModalProps> = (props) => {
                                 {...register("password")}
                                 label="Password"
                                 placeholder="パスワードを入力してください"
-                                type="password"
                                 variant="bordered"
+                                endContent={
+                                    <button
+                                        className="focus:outline-none"
+                                        type="button"
+                                        onClick={toggleVisibility}
+                                        aria-label="toggle password visibility"
+                                    >
+                                        {isVisible ? (
+                                            <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                        ) : (
+                                            <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                        )}
+                                    </button>
+                                }
+                                type={isVisible ? "text" : "password"}
                             />
                             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
 

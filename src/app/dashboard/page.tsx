@@ -22,7 +22,6 @@ const DashBoard: NextPage = () => {
             <div className='bg-blue-100 min-h-screen'>
                 <StudentNavigationbar />
                 <div className="flex flex-col items-center justify-center mt-10 space-y-6 w-full max-w-3xl mx-auto">
-                    {/* 中央揃えの画像 */}
                     <Image
                         width={900}
                         height={250}
@@ -31,7 +30,6 @@ const DashBoard: NextPage = () => {
                         src="/images.jpg"
                     />
 
-                    {/* カードのコンテナ */}
                     <div className="flex w-full space-x-4">
                         <Card radius="sm" className="w-1/2">
                             <CardBody>

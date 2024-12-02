@@ -7,10 +7,36 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function POST(request: Request) {
     try {
-        // 既にANSWERテーブルに存在するquestionIDを取得
+        // クライアントから生徒IDを取得
+        const { studentId } = await request.json();
+
+        if (!studentId) {
+            return NextResponse.json({ error: "生徒IDが提供されていません" + studentId }, { status: 400 });
+        }
+
+        // studentId に基づいて学生のデータを取得
+        const student = await prisma.student.findUnique({
+            where: { studentId },
+            select: { id: true },
+        });
+
+        if (!student) {
+            return NextResponse.json(
+                { error: "該当する学生が見つかりません" },
+                { status: 404 }
+            );
+        }
+
+        // 学生IDを取得
+        const currentUserId = student.id;
+
+        // 指定された生徒が解答済みのquestionIDを取得
         const answeredQuestionIds = await prisma.answer.findMany({
+            where: {
+                studentId: currentUserId, // 特定の生徒IDの回答履歴
+            },
             select: {
                 questionId: true,
             },
@@ -23,18 +49,20 @@ export async function GET() {
         const availableQuestions = await prisma.question.findMany({
             where: {
                 id: {
-                    notIn: answeredIds, // 回答済みでない問題
+                    notIn: answeredIds, // 生徒が未解答の問題
                 },
             },
         });
 
-        // ランダムに最大10問を選択（回答可能な問題が10問以下でもすべて出題）
+        // ランダムに最大10問を選択（未解答の問題が10問以下でもすべて出題）
         const shuffledQuestions = availableQuestions.sort(() => 0.5 - Math.random());
         const selectedQuestions = shuffledQuestions.slice(0, Math.min(10, shuffledQuestions.length));
 
+        // JSON形式で未解答の問題を返す
         return NextResponse.json({ questions: selectedQuestions });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: "問題の取得に失敗しました" }, { status: 500 });
+        return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
     }
 }
+

@@ -30,18 +30,28 @@ const TrainingReviewPage: NextPage = () => {
     const loginuser = StudentUseAuth();
     const router = useRouter();
 
-
     // 問題を取得
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
                 setIsQuestionsLoading(true);
-                const res = await fetch("/api/training/GetQuestion/review");
+                const res = await fetch("/api/training/GetQuestion/review", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        studentId: loginuser.studentId, // 生徒IDを渡す
+                    }),
+                });
+
                 const data = await res.json();
 
-                // ランダムに10問を選択
-                const randomQuestions = data.questions.sort(() => 0.5 - Math.random()).slice(0, 10);
-                setQuestions(randomQuestions);
+                if (!res.ok) {
+                    toast.error(data.message);
+                }
+
+                setQuestions(data.questions || []);
             } catch {
                 toast.error("問題の取得中にエラーが発生しました");
             } finally {
@@ -49,8 +59,10 @@ const TrainingReviewPage: NextPage = () => {
             }
         };
 
-        fetchQuestions();
-    }, []);
+        if (loginuser?.studentId) {
+            fetchQuestions();
+        }
+    }, [loginuser?.studentId]);
 
     // ページ離脱を検知するイベントリスナーを追加
     useEffect(() => {
@@ -173,7 +185,7 @@ const TrainingReviewPage: NextPage = () => {
             <div className="bg-blue-100 min-h-screen">
                 <TrainingPageNavbar answeredQuestionIds={answeredQuestionIds} />
                 <div className="container mx-auto px-4 py-8">
-                    <h1 className="text-2xl font-bold mb-6">ドリルトレーニング</h1>
+                    <h1 className="text-2xl font-bold mb-6">復習トレーニング</h1>
                     <div className="bg-white shadow-md p-4 rounded">
                         <p className="text-lg font-medium mb-2">{currentQuestion.text}</p>
                         <Input
@@ -203,12 +215,12 @@ const TrainingReviewPage: NextPage = () => {
                             </Button>
                         )}
                         {isCorrect !== null && (
-                        <Button
-                            className="px-6 py-2 text-white bg-green-500 hover:bg-green-600 rounded"
-                            onClick={nextQuestion}
-                        >
-                            次の問題へ
-                        </Button>
+                            <Button
+                                className="px-6 py-2 text-white bg-green-500 hover:bg-green-600 rounded"
+                                onClick={nextQuestion}
+                            >
+                                次の問題へ
+                            </Button>
                         )}
                     </div>
                 </div>

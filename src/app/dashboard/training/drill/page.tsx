@@ -30,18 +30,28 @@ const TrainingDrillPage: NextPage = () => {
     const loginuser = StudentUseAuth();
     const router = useRouter();
 
-
     // 問題を取得
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
                 setIsQuestionsLoading(true);
-                const res = await fetch("/api/training/GetQuestion/drill");
+                const res = await fetch("/api/training/GetQuestion/drill", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        studentId: loginuser.studentId,
+                    }),
+                });
+
                 const data = await res.json();
 
-                // ランダムに10問を選択
-                const randomQuestions = data.questions.sort(() => 0.5 - Math.random()).slice(0, 10);
-                setQuestions(randomQuestions);
+                if (!res.ok) {
+                    toast.error(data.message);
+                }
+
+                setQuestions(data.questions || []);
             } catch {
                 toast.error("問題の取得中にエラーが発生しました");
             } finally {
@@ -49,8 +59,10 @@ const TrainingDrillPage: NextPage = () => {
             }
         };
 
-        fetchQuestions();
-    }, []);
+        if (loginuser?.studentId) {
+            fetchQuestions();
+        }
+    }, [loginuser?.studentId]);
 
     // ページ離脱を検知するイベントリスナーを追加
     useEffect(() => {

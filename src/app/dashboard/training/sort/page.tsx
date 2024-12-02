@@ -35,21 +35,33 @@ const TrainingSortPage: NextPage = () => {
         const fetchQuestions = async () => {
             try {
                 setIsQuestionsLoading(true);
-                const res = await fetch("/api/training/GetQuestion/sort");
-                const data = await res.json();
+                const res = await fetch("/api/training/GetQuestion/sort", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        studentId: loginuser?.studentId, // ログインユーザーのIDを送信
+                    }),
+                });
 
-                // ランダムに10問を選択
-                const randomQuestions = data.questions.sort(() => 0.5 - Math.random()).slice(0, 10);
-                setQuestions(randomQuestions);
-            } catch {
-                toast.error("問題の取得中にエラーが発生しました");
+                if (!res.ok) {
+                    throw new Error("問題の取得に失敗しました");
+                }
+
+                const data = await res.json();
+                setQuestions(data.questions || []);
+            } catch (error) {
+                toast.error((error as Error).message || "問題の取得中にエラーが発生しました");
             } finally {
                 setIsQuestionsLoading(false);
             }
         };
 
-        fetchQuestions();
-    }, []);
+        if (loginuser?.studentId) {
+            fetchQuestions();
+        }
+    }, [loginuser?.studentId]);
 
     // ページ離脱を検知するイベントリスナーを追加
     useEffect(() => {
@@ -93,7 +105,7 @@ const TrainingSortPage: NextPage = () => {
                 body: JSON.stringify({
                     questionId: currentQuestion.id,
                     submittedAnswer: userAnswer,
-                    studentId: loginuser.studentId,
+                    studentId: loginuser?.studentId,
                 }),
             });
 
@@ -113,7 +125,7 @@ const TrainingSortPage: NextPage = () => {
                 // 解答済み問題IDを更新
                 setAnsweredQuestionIds((prev) => [...prev, currentQuestion.id]);
             } else {
-                toast.error(data.error);
+                toast.error(data.error || "採点処理中にエラーが発生しました");
             }
         } catch {
             toast.error("採点処理中にエラーが発生しました");
@@ -200,12 +212,12 @@ const TrainingSortPage: NextPage = () => {
                             </Button>
                         )}
                         {isCorrect !== null && (
-                        <Button
-                            className="px-6 py-2 text-white bg-green-500 hover:bg-green-600 rounded"
-                            onClick={nextQuestion}
-                        >
-                            次の問題へ
-                        </Button>
+                            <Button
+                                className="px-6 py-2 text-white bg-green-500 hover:bg-green-600 rounded"
+                                onClick={nextQuestion}
+                            >
+                                次の問題へ
+                            </Button>
                         )}
                     </div>
                 </div>

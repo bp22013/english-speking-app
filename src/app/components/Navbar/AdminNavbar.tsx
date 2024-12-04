@@ -5,10 +5,25 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { HiOutlineSpeakerphone } from "react-icons/hi";
-import { MdMessage } from "react-icons/md";
 import { usePathname } from 'next/navigation';
 import { AdminUseAuth } from '@/hooks/useAuth/AdminUseAuth';
-import { Popover, PopoverTrigger, PopoverContent, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link, Navbar, NavbarContent, NavbarMenuToggle, NavbarBrand, NavbarItem, NavbarMenu, NavbarMenuItem } from '@nextui-org/react';
+import {
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem,
+    Link,
+    Navbar,
+    NavbarContent,
+    NavbarMenuToggle,
+    NavbarBrand,
+    NavbarItem,
+    NavbarMenu,
+    NavbarMenuItem
+} from '@nextui-org/react';
 import toast from 'react-hot-toast';
 
 export interface NavItemProps {
@@ -17,7 +32,6 @@ export interface NavItemProps {
 }
 
 export const AdminNavigationbar = () => {
-
     const loginuser = AdminUseAuth();
     const router = useRouter();
     const pathname: string = usePathname();
@@ -30,6 +44,10 @@ export const AdminNavigationbar = () => {
         {
             Display: 'ホーム',
             Link: '/Admindashboard',
+        },
+        {
+            Display: '問題作成',
+            Link: '/Admindashboard/MakeQuestion'
         },
         {
             Display: '生徒の成績',
@@ -50,28 +68,41 @@ export const AdminNavigationbar = () => {
     ];
 
     const handleLogout = async (email: string) => {
-        try {
-            // サーバーにログアウトリクエストを送信
-            const res = await fetch("/api/auth/logout/admin", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email }),
-            });
-    
-            const data = await res.json();
-            if (data.success) {
-                toast.success("ログアウトしました");
-                // 必要に応じてページをリダイレクト
-                router.push("/");
-                router.refresh();
-            } else {
-                toast.error(data.message);
+        const promise = new Promise<void>(async (resolve, reject) => {
+            try {
+                // サーバーにログアウトリクエストを送信
+                const res = await fetch("/api/auth/logout/admin", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email }),
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    resolve(); // 成功
+                } else {
+                    reject(data.message || "ログアウトに失敗しました"); // エラー
+                }
+            } catch (error) {
+                reject("サーバーエラーが発生しました: " + error); // サーバーエラー
             }
-        } catch (error) {
-            toast.error("サーバーエラーが発生しました:" + error);
-        }
+        });
+
+        toast.promise(
+            promise,
+            {
+                loading: "ログアウト中...",
+                success: "ログアウトしました！",
+                error: (err) => `${err}`, // エラーメッセージを表示
+            }
+        );
+
+        promise.then(() => {
+            router.push("/");
+            router.refresh();
+        });
     };
 
     return (
@@ -108,12 +139,8 @@ export const AdminNavigationbar = () => {
                     <NavbarContent className="hidden sm:flex justify-center w-full flex-grow ml-48 mr-auto">
                         <div className="flex space-x-6">
                             {MenuItems.map((item: NavItemProps, index: number) => (
-                                <NavbarItem
-                                    key={index}
-                                    isActive={isActive(item.Link)}>
-                                    <Link
-                                        color='primary'
-                                        href={`${item.Link}`}>
+                                <NavbarItem key={index} isActive={isActive(item.Link)}>
+                                    <Link color='primary' href={`${item.Link}`}>
                                         {item.Display}
                                     </Link>
                                 </NavbarItem>
@@ -130,14 +157,6 @@ export const AdminNavigationbar = () => {
                                 <p className="p-4">お知らせ</p>
                             </PopoverContent>
                         </Popover>
-                        <Popover placement="bottom">
-                            <PopoverTrigger>
-                                <MdMessage size={28} style={{ cursor: 'pointer' }} />
-                            </PopoverTrigger>
-                            <PopoverContent>
-                                <p className="p-4">メッセージ</p>
-                            </PopoverContent>
-                        </Popover>
                         <Dropdown>
                             <DropdownTrigger>
                                 <a className="rounded-md px-3.5 py-0.5 m-1 overflow-hidden relative group cursor-pointer border-2 font-medium border-blue-400 text-blue-400 text-white">
@@ -147,7 +166,13 @@ export const AdminNavigationbar = () => {
                             </DropdownTrigger>
                             <DropdownMenu aria-label="Static Actions">
                                 <DropdownItem key="setting" href='/Admindashboard/setting'><strong>設定</strong></DropdownItem>
-                                <DropdownItem key="logout" color="danger" variant="flat" style={{ color: 'red' }} onClick={() => handleLogout(loginuser.email)}>
+                                <DropdownItem
+                                    key="logout"
+                                    color="danger"
+                                    variant="flat"
+                                    style={{ color: 'red' }}
+                                    onClick={() => handleLogout(loginuser.email)}
+                                >
                                     <strong>ログアウト</strong>
                                 </DropdownItem>
                             </DropdownMenu>
@@ -155,12 +180,8 @@ export const AdminNavigationbar = () => {
                     </NavbarContent>
                     <NavbarMenu>
                         {MenuItems.map((item: NavItemProps, index: number) => (
-                            <NavbarMenuItem
-                                key={index}
-                                isActive={isActive(item.Link)}>
-                                <Link
-                                    color='primary'
-                                    href={`${item.Link}`}>
+                            <NavbarMenuItem key={index} isActive={isActive(item.Link)}>
+                                <Link color='primary' href={`${item.Link}`}>
                                     {item.Display}
                                 </Link>
                             </NavbarMenuItem>

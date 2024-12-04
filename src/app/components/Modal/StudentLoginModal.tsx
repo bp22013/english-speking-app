@@ -40,33 +40,43 @@ export const StudentLoginModal: React.FC<StudentModalProps> = (props) => {
 
     const onSubmit: SubmitHandler<InputsType> = async (data) => {
         setIsLoading(true);
-        try {
-            const res = await fetch("/api/auth/login/student", {
-                method: "post",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
 
-            const jsondata = await res.json();
+        toast.promise(
+            new Promise(async (resolve, reject) => {
+                try {
+                    const res = await fetch("/api/auth/login/student", {
+                        method: "POST",
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    });
 
-            if (jsondata.flg) {
-                if ("token" in jsondata) {
-                    localStorage.setItem("studenttoken", jsondata.token);
-                    toast.success(jsondata.message);
+                    const jsondata = await res.json();
+
+                    if (jsondata.flg) {
+                        if ("token" in jsondata) {
+                            localStorage.setItem("studenttoken", jsondata.token);
+                        }
+                        resolve(jsondata.message);
+                        router.push("/dashboard");
+                        router.refresh();
+                    } else {
+                        reject(jsondata.message);
+                    }
+                } catch {
+                    reject("エラーが発生しました。もう一度お試しください。");
+                } finally {
+                    setIsLoading(false);
                 }
-                router.push("/dashboard");
-                router.refresh();
-            } else {
-                toast.error(jsondata.message);
+            }),
+            {
+                loading: "ログインしています...",
+                success: "ログインしました！",
+                error: (message: string) => message, // サーバーから返されるエラーメッセージを表示
             }
-        } catch (error) {
-            toast.error("エラーが発生しました:" + error);
-        } finally {
-            setIsLoading(false);
-        }
+        );
     };
 
     return (
@@ -79,6 +89,7 @@ export const StudentLoginModal: React.FC<StudentModalProps> = (props) => {
                             <Input
                                 {...register("studentId")}
                                 autoFocus
+                                isClearable
                                 label="Student ID"
                                 placeholder="生徒IDを入力してください"
                                 variant="bordered"

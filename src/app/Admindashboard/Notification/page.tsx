@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { AdminNavigationbar } from "@/app/components/Navbar/AdminNavbar";
+import { Button, Textarea } from "@nextui-org/react";
 
 export default function CreateNotification() {
     const [message, setMessage] = useState("");
@@ -38,45 +39,34 @@ export default function CreateNotification() {
     };
 
     return (
-        <div>
-            <div className="bg-blue-100 min-h-screen flex flex-col">
-                <AdminNavigationbar/>
-                <h1>通知作成</h1>
-                <textarea
+        <div className="bg-blue-100 min-h-screen flex flex-col">
+            <AdminNavigationbar />
+            <div className="mt-20 flex justify-center">
+                <div className="w-[90%] sm:w-[70%] lg:w-[50%] flex flex-col items-center bg-white shadow-lg p-6 rounded-lg">
+                    <h1 className="text-2xl font-bold mb-6">お知らせ作成</h1>
+                    <Textarea
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="通知メッセージを入力してください"
                         rows={5}
-                        style={{
-                            width: "100%",
-                            marginBottom: "1rem",
-                            padding: "0.5rem",
-                            fontSize: "1rem",
-                        }}
-                />
-                <button
-                    onClick={createNotification}
-                    style={{
-                        padding: "0.5rem 1rem",
-                        backgroundColor: "#0070f3",
-                        color: "white",
-                        border: "none",
-                        cursor: "pointer",
-                        borderRadius: "4px",
-                    }}
-                >
-                    通知を送信
-                </button>
-                {status && (
-                    <p
-                        style={{
-                            marginTop: "1rem",
-                            color: status.startsWith("エラー") ? "red" : "green",
-                        }}
+                        className="w-full mb-4 text-base"
+                    />
+                    <Button
+                        onClick={createNotification}
+                        className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 rounded-md"
                     >
-                        {status}
-                    </p>
-                )}
+                        通知を送信
+                    </Button>
+                    {status && (
+                        <p
+                            className={`mt-4 text-center ${
+                                status.startsWith("エラー") ? "text-red-500" : "text-green-500"
+                            }`}
+                        >
+                            {status}
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );

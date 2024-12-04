@@ -5,7 +5,9 @@
 import { useEffect, useState } from "react";
 import { StudentNavigationbar } from "@/app/components/Navbar/StudentNavbar";
 import { StudentUseAuth } from "@/hooks/useAuth/StudentUseAuth";
+import { Pagination, Spinner } from "@nextui-org/react";
 import toast from "react-hot-toast";
+import NotificationTable from "./table";
 
 type Notification = {
     id: number;
@@ -17,10 +19,13 @@ type Notification = {
 export default function NotificationPage() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const loginuser = StudentUseAuth();
+    const itemsPerPage = 10; // 1ページあたりの通知件数
 
     // 通知を取得する関数
-    const fetchNotifications = async () => {
+    const fetchNotifications = async (page: number) => {
         setIsLoading(true);
         try {
             const response = await fetch("/api/notification/GetNotification", {
@@ -30,6 +35,8 @@ export default function NotificationPage() {
                 },
                 body: JSON.stringify({
                     studentId: loginuser.studentId,
+                    page,
+                    limit: itemsPerPage,
                 }),
             });
 
@@ -38,72 +45,77 @@ export default function NotificationPage() {
             }
 
             const data = await response.json();
-            setNotifications(data || []); // データが空の場合に空配列をセット
+            setNotifications(data.notifications || []);
+            setTotalPages(data.totalPages || 1);
         } catch (error) {
             console.error("Error fetching notifications:", error);
             toast.error("通知の取得に失敗しました。");
-            setNotifications([]); // エラー時に空配列をセット
+            setNotifications([]);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // コンポーネントの初回マウント時に通知を取得
-    useEffect(() => {
-        if (loginuser.studentId) {
-            fetchNotifications();
-        }
-    }, [loginuser.studentId]);
-
     // 通知を既読にする関数
-    async function markAsRead(notificationId: number, studentId: string) {
+    const markAsRead = async (notificationId: number) => {
         try {
             const response = await fetch("/api/notification/MarkNotification", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ notificationId, studentId }), // 通知IDと生徒IDを送信
+                body: JSON.stringify({ notificationId, studentId: loginuser.studentId }),
             });
-    
+
             const data = await response.json();
             if (response.ok) {
                 toast.success(data.message);
-                // 通知一覧を再取得
-                await fetchNotifications();
+                fetchNotifications(currentPage);
             } else {
                 toast.error(data.error);
             }
         } catch {
             toast.error("不明なエラーが発生しました");
         }
-    }
-    
+    };
+
+    // 初回マウント時に通知を取得
+    useEffect(() => {
+        if (loginuser.studentId) {
+            fetchNotifications(currentPage);
+        }
+    }, [loginuser.studentId, currentPage]);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     return (
         <div className="bg-blue-100 min-h-screen flex flex-col">
             <StudentNavigationbar />
-            <h1>通知一覧</h1>
-            <ul>
+            <div className="container mx-auto p-4">
+                <h1 className="text-2xl font-bold mb-4">通知一覧</h1>
                 {isLoading ? (
-                    <p>通知を取得中です...</p>
-                ) : Array.isArray(notifications) && notifications.length > 0 ? (
-                    notifications.map((notification) => (
-                        <li key={notification.id} style={{ marginBottom: "1rem" }}>
-                            <p>{notification.message}</p>
-                            <p>
-                                {notification.isRead ? "既読" : "未読"} -{" "}
-                                {new Date(notification.createdAt).toLocaleString()}
-                            </p>
-                            {!notification.isRead && (
-                                <button onClick={() => markAsRead(notification.id, loginuser.studentId)}>既読にする</button>
-                            )}
-                        </li>
-                    ))
+                    <div className="flex justify-center items-center h-64">
+                        <Spinner label="通知を取得中です..." color="success" />
+                    </div>
                 ) : (
-                    <p>通知がありません。</p>
+                    <>
+                        <NotificationTable
+                            notifications={notifications}
+                            markAsRead={markAsRead}
+                        />
+                        <div className="mt-4 flex justify-center">
+                            <Pagination
+                                total={totalPages}
+                                initialPage={currentPage}
+                                color="secondary"
+                                onChange={handlePageChange}
+                            />
+                        </div>
+                    </>
                 )}
-            </ul>
+            </div>
         </div>
     );
 }

@@ -2,28 +2,26 @@
 
 'use client';
 
-import { Navbar, NavbarContent, useDisclosure, Button } from "@nextui-org/react";
-import { PrevConfirmModal } from "../Modal/PrevConfirmModal";
+import { Navbar, NavbarContent, Button } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
-interface QuestionProps {
-    answeredQuestionIds: number[];
-}
+export const TrainingPageNavbar = () => {
 
-export const TrainingPageNavbar: React.FC<QuestionProps> = (props) => {
-
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const router = useRouter();
+    const handleBackPage = () => {
+        router.push("/dashboard/training");
+    }
 
     return(
         <>
             <div className="bg-[#00bfff] text-[#1e90ff]">
                 <Navbar isBordered className="'bg-[#00bfff] text-[#1e90ff]'">
                     <NavbarContent justify="start">
-                        <Button onClick={onOpen} color="primary">
+                        <Button color="primary" onClick={handleBackPage}>
                             前のページに戻る
                         </Button>
                     </NavbarContent>
                 </Navbar>
-                <PrevConfirmModal showFlag={isOpen} ChangeFlag={onOpenChange} answeredQuestionIds={props.answeredQuestionIds} />
             </div>
         </>
     );

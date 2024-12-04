@@ -42,30 +42,40 @@ export const AdminLoginModal: React.FC<AdminModalProps> = (props) => {
     // フォーム送信処理
     const onSubmit: SubmitHandler<InputsType> = async (data) => {
         setIsLoading(true);
-        try {
-            const res = await fetch("/api/auth/login/admin", {
-                method: "post",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
 
-            const jsondata = await res.json();
+        toast.promise(
+            new Promise(async (resolve, reject) => {
+                try {
+                    const res = await fetch("/api/auth/login/admin", {
+                        method: "POST",
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    });
 
-            if (jsondata.flg) {
-                toast.success(jsondata.message);
-                router.push("/Admindashboard");
-                router.refresh();
-            } else {
-                toast.error(jsondata.message);
+                    const jsondata = await res.json();
+
+                    if (jsondata.flg) {
+                        resolve(jsondata.message); // 成功時のメッセージ
+                        router.push("/Admindashboard");
+                        router.refresh();
+                    } else {
+                        reject(jsondata.message); // サーバーからのエラーを渡す
+                    }
+                } catch {
+                    reject("エラーが発生しました。もう一度お試しください。");
+                } finally {
+                    setIsLoading(false);
+                }
+            }),
+            {
+                loading: "ログインしています...",
+                success: "ログインしました！",
+                error: (message: string) => message, // サーバーエラーをそのまま表示
             }
-        } catch (error) {
-            toast.error("エラーが発生しました:" + error);
-        } finally {
-            setIsLoading(false);
-        }
+        );
     };
 
     return (
@@ -79,6 +89,7 @@ export const AdminLoginModal: React.FC<AdminModalProps> = (props) => {
                                 <Input
                                     {...register("email")}
                                     autoFocus
+                                    isClearable
                                     label="email"
                                     placeholder="メールアドレスを入力してください"
                                     variant="bordered"

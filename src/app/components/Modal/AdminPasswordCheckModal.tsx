@@ -1,4 +1,4 @@
-/* 管理者用パスワード変更前旧パスワード確認モーダル */
+/* 管理者用ルーティング前確認モーダル */
 
 'use client';
 
@@ -20,7 +20,6 @@ interface AdminPasswordCheckModalProps {
 }
 
 export const AdminPasswordCheckModal: React.FC<AdminPasswordCheckModalProps> = (props) => {
-
     const router = useRouter();
     const loginuser = AdminUseAuth();
     const [isLoading, setIsLoading] = useState(false);
@@ -41,50 +40,57 @@ export const AdminPasswordCheckModal: React.FC<AdminPasswordCheckModalProps> = (
         reset(); // フォームをリセット
     };
 
-    //パスワード変更ページへpushする関数
     const handlePush: SubmitHandler<InputsType> = async (data) => {
         setIsLoading(true);
-    
-        try {
-            const email = loginuser.email;
-    
-            if (!email) {
-                toast.error("メールアドレスが取得できませんでした。再ログインしてください。");
-                router.push("/");
-                router.refresh();
+
+        const promise = new Promise<void>(async (resolve, reject) => {
+            try {
+                const email = loginuser.email;
+
+                if (!email) {
+                    reject("メールアドレスが取得できませんでした。再ログインしてください。");
+                    router.push("/");
+                    router.refresh();
+                }
+
+                const response = await fetch("/api/auth/confirm", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: data.password,
+                    }),
+                });
+
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    reject(responseData.message || "エラーが発生しました。");
+                } else {
+                    // 成功時の処理
+                    props.ChangeFlag(); // モーダルを閉じる
+                    router.push(props.apiUrl || "/"); // 遷移先を指定
+                    router.refresh();
+                    resolve();
+                }
+            } catch {
+                reject("エラーが発生しました");
             }
-    
-            const apiUrl = props.apiUrl || "" ;
-    
-            const response = await fetch("/api/auth/confirm", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: data.password,
-                }),
-            });
-    
-            const responseData = await response.json();
-    
-            if (!response.ok) {
-                toast.error(responseData.message);
-                return;
+        });
+
+        toast.promise(
+            promise,
+            {
+                loading: "確認中...",
+                success: "パスワード確認成功",
+                error: (error) => `${error}`,
             }
-    
-            toast.success("パスワード確認成功");
-            props.ChangeFlag();
-            router.push(apiUrl);
-            router.refresh();
-        } catch {
-            toast.error("エラーが発生しました");
-        } finally {
-            setIsLoading(false);
-        }
+        );
+
+        setIsLoading(false);
     };
-    
 
     return (
         <Modal backdrop="blur" isOpen={props.showFlag} onOpenChange={onChangeModal}>
@@ -131,4 +137,4 @@ export const AdminPasswordCheckModal: React.FC<AdminPasswordCheckModalProps> = (
             </ModalContent>
         </Modal>
     );
-}
+};

@@ -193,8 +193,9 @@ const SolveIncorrectQuestionPage = () => {
                     <CardFooter>
                         {isAllQuestionsCompleted ? (
                             <Button
+                                color="primary"
                                 onClick={handleBack}
-                                className="w-full py-3 rounded-lg font-semibold text-white text-lg transition bg-gray-500 hover:bg-gray-600"
+                                className="w-full py-3 rounded-lg font-semibold text-white text-lg transition hover:bg-primary-400"
                             >
                                 戻る
                             </Button>

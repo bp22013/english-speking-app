@@ -45,6 +45,8 @@ export async function POST(request: Request) {
         // 正解か不正解かを判定
         const isCorrect = question.correctAnswer === userAnswer;
 
+        const correctAnswer = question.correctAnswer;
+
         if (isCorrect) {
             // 正解の場合、テーブルから削除
             await prisma.incorrectAssignedQuestion.deleteMany({
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
                     questionId: questionId,
                 },
             });
-            return NextResponse.json({ message: "正解です！" , flag: true});
+            return NextResponse.json({ message: "正解です！" , flag: true , correctAnswer: correctAnswer});
         } else {
             // 不正解の場合、回答情報を更新
             const updatedQuestions = await prisma.incorrectAssignedQuestion.updateMany({

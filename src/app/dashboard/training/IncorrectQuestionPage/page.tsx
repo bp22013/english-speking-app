@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { Button, Input, Spinner, Card, CardHeader, CardBody, CardFooter, Divider } from "@nextui-org/react";
+import { Button, Input, Spinner, Card, CardHeader, CardBody, CardFooter, Divider, Tooltip, Slider } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { speak } from "@/lib/WebSpeechApi";
@@ -22,6 +22,9 @@ const SolveIncorrectQuestionPage = () => {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswer, setUserAnswer] = useState("");
+    const [SpeedValue, SetspeedValue] = useState(1.0);
+    const [InputSpeedValue, InputSetSpeedValue] = useState("1.0");
+    const [correctAnswer, setCorrectAnswer] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showNextButton, setShowNextButton] = useState(false);
@@ -84,7 +87,8 @@ const SolveIncorrectQuestionPage = () => {
                 });
             }
 
-            speak(data.correctAnswer);
+            setCorrectAnswer(data.correctAnswer);
+            speak(data.correctAnswer, 1.0);
 
             setShowNextButton(true);
 
@@ -110,6 +114,19 @@ const SolveIncorrectQuestionPage = () => {
 
     const handleBack = () => {
         router.push("/dashboard/training");
+    };
+
+    const handlePlayAgain = () => {
+        speak(correctAnswer, SpeedValue);
+    };
+
+    const handleChange = (value: number | number[]) => {
+        if (Array.isArray(value)) {
+            return;
+        }
+
+        SetspeedValue(value);
+        InputSetSpeedValue(value.toString());
     };
 
     if (isLoading) {
@@ -201,6 +218,65 @@ const SolveIncorrectQuestionPage = () => {
                         )}
                     </CardFooter>
                 </Card>
+                {showNextButton && (
+                    <Card className="shadow-md p-6 max-w-xl w-full mt-3 ">
+                        <CardBody>
+                            <Button color="secondary" onClick={handlePlayAgain}>
+                                もう一度再生
+                            </Button>
+                            <Divider/>
+                            <Slider
+                                label="再生速度"
+                                step={0.1}
+                                minValue={0.5}
+                                maxValue={1.5}
+                                marks={[
+                                    {
+                                        value: 0.5,
+                                        label: "遅"
+                                    },
+                                    {
+                                        value: 1.0,
+                                        label: "普"
+                                    },
+                                    {
+                                        value: 1.5,
+                                        label: "速"
+                                    },
+                                ]}
+                                renderValue={({ ...props }) => (
+                                    <output {...props}>
+                                        <Tooltip
+                                            className="text-tiny text-default-500 rounded-md"
+                                            content="Press Enter to confirm"
+                                            placement="left"
+                                        >
+                                            <input
+                                            className="px-1 py-0.5 w-12 text-right text-small text-default-700 font-medium bg-default-100 outline-none transition-colors rounded-small border-medium border-transparent hover:border-primary focus:border-primary"
+                                            type="text"
+                                            aria-label="Speed value"
+                                            value={InputSpeedValue}
+                                            onChange={(e) => {
+                                                const v = e.target.value;
+
+                                                InputSetSpeedValue(v);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" && !isNaN(Number(InputSpeedValue))) {
+                                                    SetspeedValue(Number(InputSpeedValue));
+                                                }
+                                            }}
+                                            />
+                                        </Tooltip>
+                                    </output>
+                                )}
+                                value={SpeedValue}
+                                onChange={handleChange}
+                            >
+                            </Slider>
+                        </CardBody>
+                    </Card>
+                )}
             </div>
         </div>
     );

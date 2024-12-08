@@ -22,12 +22,14 @@ interface Question {
 const ManageQuestionsPage = () => {
     const [hasMore, setHasMore] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // データ読み込み状態を管理
     const [text, setText] = useState("");
     const [correctAnswer, setCorrectAnswer] = useState("");
     const admin = AdminUseAuth();
 
     const list = useAsyncList<Question>({
         async load({ signal, cursor }) {
+            setIsLoading(true); // スピナーを表示
             try {
                 const res = await fetch(cursor || "/api/training/MakeQuestion/GetQuestion", { signal });
                 const json = await res.json();
@@ -35,7 +37,6 @@ const ManageQuestionsPage = () => {
                 if (!res.ok) throw new Error(json.error || "データの取得に失敗しました");
 
                 setHasMore(json.hasMore);
-
                 return {
                     items: json.questions as Question[],
                     cursor: json.hasMore ? `/api/training/MakeQuestion/GetQuestion?page=${json.nextPage}` : undefined,
@@ -46,6 +47,8 @@ const ManageQuestionsPage = () => {
                     items: [] as Question[],
                     cursor: undefined,
                 };
+            } finally {
+                setIsLoading(false); // スピナーを非表示
             }
         },
     });
@@ -117,56 +120,61 @@ const ManageQuestionsPage = () => {
                     </CardHeader>
                     <Divider />
                     <CardBody>
-                        <Table
-                            isHeaderSticky
-                            aria-label="問題リスト"
-                            baseRef={scrollerRef}
-                            bottomContent={
-                                hasMore ? (
-                                    <div className="flex w-full justify-center">
-                                        <Spinner ref={loaderRef} color="primary" />
-                                    </div>
-                                ) : null
-                            }
-                            classNames={{
-                                base: "max-h-[520px] overflow-scroll",
-                                table: "min-h-[400px]",
-                            }}
-                        >
-                            <TableHeader>
-                                <TableColumn>問題文</TableColumn>
-                                <TableColumn>正解</TableColumn>
-                                <TableColumn>作成者</TableColumn>
-                                <TableColumn>作成日時</TableColumn>
-                                <TableColumn>操作</TableColumn>
-                            </TableHeader>
-                            <TableBody
-                                items={list.items}
-                                loadingContent={<Spinner color="primary" />}
+                        {isLoading ? (
+                            <div className="flex justify-center items-center h-64">
+                                <Spinner label="問題情報を取得中..." color="success" />
+                            </div>
+                        ) : (
+                            <Table
+                                isHeaderSticky
+                                aria-label="問題リスト"
+                                baseRef={scrollerRef}
+                                bottomContent={
+                                    hasMore ? (
+                                        <div className="flex w-full justify-center">
+                                            <Spinner ref={loaderRef} color="primary" />
+                                        </div>
+                                    ) : null
+                                }
+                                classNames={{
+                                    base: "max-h-[520px] overflow-scroll",
+                                    table: "min-h-[400px]",
+                                }}
                             >
-                                {(item: Question) => (
-                                    <TableRow key={item.id}>
-                                        <TableCell>{item.text}</TableCell>
-                                        <TableCell>{item.correctAnswer}</TableCell>
-                                        <TableCell>{item.adminName}</TableCell>
-                                        <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
-                                        <TableCell>
-                                            <Button
-                                                size="sm"
-                                                color="danger"
-                                                onClick={() => handleDeleteQuestion(item.id)}
-                                            >
-                                                削除
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                                <TableHeader>
+                                    <TableColumn>問題文</TableColumn>
+                                    <TableColumn>正解</TableColumn>
+                                    <TableColumn>作成者</TableColumn>
+                                    <TableColumn>作成日時</TableColumn>
+                                    <TableColumn>操作</TableColumn>
+                                </TableHeader>
+                                <TableBody
+                                    items={list.items}
+                                    loadingContent={<Spinner color="primary" />}
+                                >
+                                    {(item: Question) => (
+                                        <TableRow key={item.id}>
+                                            <TableCell>{item.text}</TableCell>
+                                            <TableCell>{item.correctAnswer}</TableCell>
+                                            <TableCell>{item.adminName}</TableCell>
+                                            <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
+                                            <TableCell>
+                                                <Button
+                                                    size="sm"
+                                                    color="danger"
+                                                    onClick={() => handleDeleteQuestion(item.id)}
+                                                >
+                                                    削除
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        )}
                     </CardBody>
                 </Card>
 
-                {/* 問題追加フォームカード */}
                 <Card className="shadow-md p-6 flex-1 min-w-[400px]">
                     <CardHeader>
                         <h1 className="text-2xl font-bold text-gray-800">問題を追加</h1>

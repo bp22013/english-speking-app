@@ -14,8 +14,6 @@ interface Question {
     id: number;
     text: string;
     correctAnswer: string;
-    isAnswered: boolean;
-    isCorrect: boolean | null;
 }
 
 const SolveIncorrectQuestionPage = () => {
@@ -225,7 +223,7 @@ const SolveIncorrectQuestionPage = () => {
                             <Button color="secondary" onClick={handlePlayAgain}>
                                 もう一度再生
                             </Button>
-                            <Divider/>
+                            <Divider className="my-2"/>
                             <Slider
                                 label="再生速度"
                                 step={0.1}

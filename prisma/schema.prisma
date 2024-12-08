@@ -62,7 +62,7 @@ model AdminAccount {
 }
 
 model Question {
-    id                        Int                      @id @default(autoincrement())
+    id                        String                    @id @default(uuid())
     text                      String                   // 問題文
     correctAnswer             String?                  // 正解を保持
     createdBy                 Admin                    @relation(fields: [adminId], references: [id])
@@ -75,11 +75,11 @@ model Question {
 }
 
 model Answer {
-    id               Int        @id @default(autoincrement())
+    id               String     @id @default(uuid())
     student          Student    @relation(fields: [studentId], references: [id])
     studentId        String     // 回答者 (Student) のID
     question         Question   @relation(fields: [questionId], references: [id])
-    questionId       Int        // 回答した問題のID
+    questionId       String     // 回答した問題のID
     isCorrect        Boolean?   // 正解: true, 不正解: false, 未回答: null
     submittedAnswer  String?    // 提出した回答内容
     answeredAt       DateTime?  // 回答日時
@@ -88,7 +88,7 @@ model Answer {
 }
 
 model Notification {
-    id          Int       @id @default(autoincrement())
+    id          String    @id @default(uuid())
     message     String    // 通知メッセージ
     isRead      Boolean   @default(false) // 既読フラグ
     createdAt   DateTime  @default(now())
@@ -99,9 +99,9 @@ model Notification {
 }
 
 model AssignedQuestion {
-    id          Int       @id @default(autoincrement())
+    id          String    @id @default(uuid())
     studentId   String    // 生徒ID
-    questionId  Int       // 問題ID
+    questionId  String    // 問題ID
     isAnswered  Boolean   @default(false) // 回答済みかどうか
     isCorrect   Boolean?  // 回答が正解だったかどうか
     answeredAt  DateTime? // 回答日時
@@ -112,9 +112,9 @@ model AssignedQuestion {
 }
 
 model IncorrectAssignedQuestion {
-    id          Int       @id @default(autoincrement())
+    id          String    @id @default(uuid())
     studentId   String    // 生徒ID
-    questionId  Int       // 問題ID
+    questionId  String    // 問題ID
     isAnswered  Boolean   @default(false) // 回答済みかどうか
     isCorrect   Boolean?  // 回答が正解だったかどうか
     answeredAt  DateTime? // 回答日時

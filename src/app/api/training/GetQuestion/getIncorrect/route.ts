@@ -1,4 +1,4 @@
-/* 間違えた問題を解くページの問題を送信するAPI */
+/* 復習ページの問題を取得するAPI */
 
 'use server';
 
@@ -6,6 +6,15 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+// 配列をシャッフルする関数
+const shuffleArray = <T>(array: T[]): T[] => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
 
 export async function POST(request: Request) {
     try {
@@ -32,10 +41,10 @@ export async function POST(request: Request) {
                 OR: [
                     { isAnswered: false },
                     { isCorrect: false },
-                ], // 未回答または不正解の問題を取得
+                ],
             },
             include: {
-                question: true, // 関連する問題の詳細を取得
+                question: true,
             },
         });
 
@@ -48,7 +57,10 @@ export async function POST(request: Request) {
             isCorrect: q.isCorrect,
         }));
 
-        return NextResponse.json({ questions });
+        // 問題をシャッフルして返す
+        const shuffledQuestions = shuffleArray(questions);
+
+        return NextResponse.json({ questions: shuffledQuestions });
     } catch (error) {
         console.error("Error fetching questions:", error);
         return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 });

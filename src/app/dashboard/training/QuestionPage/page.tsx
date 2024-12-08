@@ -223,7 +223,7 @@ const SolveQuestionPage = () => {
                             <Button color="secondary" onClick={handlePlayAgain}>
                                 もう一度再生
                             </Button>
-                            <Divider/>
+                            <Divider className="my-2"/>
                             <Slider
                                 label="再生速度"
                                 step={0.1}

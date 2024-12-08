@@ -20,6 +20,12 @@ importers:
       '@nextui-org/theme':
         specifier: ^2.2.11
         version: 2.2.11(tailwindcss@3.4.14)
+      '@nextui-org/use-infinite-scroll':
+        specifier: ^2.2.1
+        version: 2.2.1(react@19.0.0-rc-02c0e824-20241028)
+      '@react-stately/data':
+        specifier: ^3.12.0
+        version: 3.12.0(react@19.0.0-rc-02c0e824-20241028)
       '@types/jsonwebtoken':
         specifier: ^9.0.7
         version: 9.0.7
@@ -670,6 +676,9 @@ packages:
   '@nextui-org/shared-utils@2.0.8':
     resolution: {integrity: sha512-ZEtoMPXS+IjT8GvpJTS9IWDnT1JNCKV+NDqqgysAf1niJmOFLyJgl6dh/9n4ufcGf1GbSEQN+VhJasEw7ajYGQ==}
 
+  '@nextui-org/shared-utils@2.1.1':
+    resolution: {integrity: sha512-qE8gZO63GqUX1ljOi/4PlwGzE84dhUS3zFIq+10/N6ePAaNjM4DwtL4ocucG3abCz4iRUueYKLIxTO2+eYyAfw==}
+
   '@nextui-org/skeleton@2.0.32':
     resolution: {integrity: sha512-dS0vuRrc4oWktW3wa/KFhcBNnV0oiDqKXP4BqRj7wgS01fOAqj3cJiqwUDLKO8GbEnxLkbqLBFcUoLgktpRszQ==}
     peerDependencies:
@@ -823,6 +832,11 @@ packages:
     resolution: {integrity: sha512-VelN9y3vzwIpPfubFMh00YRQ0f4+I5FElcAvAqoo0Kfb0K7sGrTo1lZNApHm6yBN2gJMMeccG9u7bZB+wcDGZQ==}
     peerDependencies:
       react: '>=18'
+
+  '@nextui-org/use-infinite-scroll@2.2.1':
+    resolution: {integrity: sha512-d8gBZ54G9UD7EPeO7eOiz5D5OG+iM+pK0VMsB2SFD7H0VdeqUjfXyWC5xHhivomaa0Wg8gcS6VdMzoxEV8oUwA==}
+    peerDependencies:
+      react: '>=18 || >=19.0.0-rc.0'
 
   '@nextui-org/use-is-mobile@2.0.9':
     resolution: {integrity: sha512-u5pRmPV0wacdpOcAkQnWwE30yNBl2uk1WvbWkrSELxIVRN22+fTIYn8ynnHK0JbJFTA6/5zh7uIfETQu3L6KjA==}
@@ -1182,6 +1196,11 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
 
+  '@react-stately/data@3.12.0':
+    resolution: {integrity: sha512-6PiW2oA56lcH1CVjDcajutzsv91w/PER8K61/OGxtNFFUWaIZH80RWmK4kjU/Lf0vygzXCxout3kEb388lUk0w==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
   '@react-stately/datepicker@3.9.4':
     resolution: {integrity: sha512-yBdX01jn6gq4NIVvHIqdjBUPo+WN8Bujc4OnPw+ZnfA4jI0eIgq04pfZ84cp1LVXW0IB0VaCu1AlQ/kvtZjfGA==}
     peerDependencies:
@@ -1434,6 +1453,11 @@ packages:
     resolution: {integrity: sha512-OZSyhzU6vTdW3eV/mz5i6hQwQUhkRs7xwY2d1aqPvTdMe0+2cY7Fwp45PAiwYLEj73i9ro2FxF9qC4DvHGSCgQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0
+
+  '@react-types/shared@3.26.0':
+    resolution: {integrity: sha512-6FuPqvhmjjlpEDLTiYx29IJCbCNWPlsyO+ZUmCUXzhUv2ttShOXfw8CmeHWHftT/b2KweAWuzqSlfeXPR76jpw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
   '@react-types/slider@3.7.6':
     resolution: {integrity: sha512-z72wnEzSge6qTD9TUoUPp1A4j4jXk/MVii6rGE78XeE/Pq7HyyjU5bCagryMr9PC9MKa/oTiHcshKqWBDf57GA==}
@@ -4241,6 +4265,8 @@ snapshots:
 
   '@nextui-org/shared-utils@2.0.8': {}
 
+  '@nextui-org/shared-utils@2.1.1': {}
+
   '@nextui-org/skeleton@2.0.32(@nextui-org/system@2.2.6(@nextui-org/theme@2.2.11(tailwindcss@3.4.14))(framer-motion@11.11.11(react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028))(react@19.0.0-rc-02c0e824-20241028))(react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028))(react@19.0.0-rc-02c0e824-20241028))(@nextui-org/theme@2.2.11(tailwindcss@3.4.14))(react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028))(react@19.0.0-rc-02c0e824-20241028)':
     dependencies:
       '@nextui-org/react-utils': 2.0.17(react@19.0.0-rc-02c0e824-20241028)
@@ -4527,6 +4553,11 @@ snapshots:
   '@nextui-org/use-image@2.0.6(react@19.0.0-rc-02c0e824-20241028)':
     dependencies:
       '@nextui-org/use-safe-layout-effect': 2.0.6(react@19.0.0-rc-02c0e824-20241028)
+      react: 19.0.0-rc-02c0e824-20241028
+
+  '@nextui-org/use-infinite-scroll@2.2.1(react@19.0.0-rc-02c0e824-20241028)':
+    dependencies:
+      '@nextui-org/shared-utils': 2.1.1
       react: 19.0.0-rc-02c0e824-20241028
 
   '@nextui-org/use-is-mobile@2.0.9(react@19.0.0-rc-02c0e824-20241028)':
@@ -5196,6 +5227,12 @@ snapshots:
       '@swc/helpers': 0.5.13
       react: 19.0.0-rc-02c0e824-20241028
 
+  '@react-stately/data@3.12.0(react@19.0.0-rc-02c0e824-20241028)':
+    dependencies:
+      '@react-types/shared': 3.26.0(react@19.0.0-rc-02c0e824-20241028)
+      '@swc/helpers': 0.5.13
+      react: 19.0.0-rc-02c0e824-20241028
+
   '@react-stately/datepicker@3.9.4(react@19.0.0-rc-02c0e824-20241028)':
     dependencies:
       '@internationalized/date': 3.5.6
@@ -5527,6 +5564,10 @@ snapshots:
       react: 19.0.0-rc-02c0e824-20241028
 
   '@react-types/shared@3.25.0(react@19.0.0-rc-02c0e824-20241028)':
+    dependencies:
+      react: 19.0.0-rc-02c0e824-20241028
+
+  '@react-types/shared@3.26.0(react@19.0.0-rc-02c0e824-20241028)':
     dependencies:
       react: 19.0.0-rc-02c0e824-20241028
 

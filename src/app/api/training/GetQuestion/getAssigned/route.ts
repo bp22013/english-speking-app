@@ -1,9 +1,20 @@
+/* 一般の問題を解くページの問題を取得するAPI */
+
 'use server';
 
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
+
+// 配列をシャッフルする関数
+const shuffleArray = <T>(array: T[]): T[] => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
 
 export async function POST(request: Request) {
     try {
@@ -40,7 +51,10 @@ export async function POST(request: Request) {
             correctAnswer: aq.question.correctAnswer,
         }));
 
-        return NextResponse.json({ questions });
+        // 配列をランダムにシャッフル
+        const shuffledQuestions = shuffleArray(questions);
+
+        return NextResponse.json({ questions: shuffledQuestions });
     } catch (error) {
         console.error("Error fetching questions:", error);
         return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 });

@@ -1,3 +1,5 @@
+/* 一般の問題を解くページの問題を送信するAPI */
+
 'use server';
 
 import { NextRequest, NextResponse } from "next/server";

@@ -5,37 +5,43 @@
 import { useState } from "react";
 import { AdminNavigationbar } from "@/app/components/Navbar/AdminNavbar";
 import { Button, Textarea } from "@nextui-org/react";
+import toast from "react-hot-toast";
 
 export default function CreateNotification() {
     const [message, setMessage] = useState("");
-    const [status, setStatus] = useState<string | null>(null);
 
     // 通知を作成する
     const createNotification = async () => {
         if (!message.trim()) {
-            setStatus("通知メッセージを入力してください。");
+            toast.error("通知メッセージを入力してください。");
             return;
         }
 
-        try {
-            const response = await fetch("/api/notification/MakeNotification", {
+        // トーストを表示しながら非同期処理を実行
+        await toast.promise(
+            fetch("/api/notification/MakeNotification", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ message }),
-            });
-
-            if (response.ok) {
-                setMessage(""); // フォームをクリア
-                setStatus("通知が正常に送信されました。");
-            } else {
-                const error = await response.json();
-                setStatus(`エラー: ${error.error || "通知の送信に失敗しました。"}`);
+            })
+                .then(async (response) => {
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || "通知の送信に失敗しました。");
+                    }
+                    setMessage(""); // 成功時にメッセージをクリア
+                })
+                .catch((error) => {
+                    throw new Error(error.message || "エラーが発生しました。");
+                }),
+            {
+                loading: "通知を送信中です...",
+                success: "通知が正常に送信されました。",
+                error: (err) => err.message || "通知の送信に失敗しました。",
             }
-        } catch {
-            setStatus("エラーが発生しました。もう一度お試しください。");
-        }
+        );
     };
 
     return (
@@ -57,15 +63,6 @@ export default function CreateNotification() {
                     >
                         通知を送信
                     </Button>
-                    {status && (
-                        <p
-                            className={`mt-4 text-center ${
-                                status.startsWith("エラー") ? "text-red-500" : "text-green-500"
-                            }`}
-                        >
-                            {status}
-                        </p>
-                    )}
                 </div>
             </div>
         </div>

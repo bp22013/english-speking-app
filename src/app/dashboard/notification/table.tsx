@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Table, Button, TableCell, TableBody, TableRow, TableColumn, TableHeader, Chip } from "@nextui-org/react";
 
 type Notification = {
-    id: number;
+    id: string; // id を string 型に変更
     message: string;
     isRead: boolean;
     createdAt: string;
@@ -14,16 +14,16 @@ type Notification = {
 
 type NotificationTableProps = {
     notifications: Notification[];
-    markAsRead: (notificationId: number) => Promise<void>;
+    markAsRead: (notificationId: string) => Promise<void>; // id の型を string に変更
 };
 
 export default function NotificationTable({
     notifications,
     markAsRead,
 }: NotificationTableProps) {
-    const [loadingId, setLoadingId] = useState<number | null>(null); // 処理中の通知IDを管理
+    const [loadingId, setLoadingId] = useState<string | null>(null); // 処理中の通知IDを string 型に変更
 
-    const handleMarkAsRead = async (notificationId: number) => {
+    const handleMarkAsRead = async (notificationId: string) => {
         setLoadingId(notificationId); // 処理中の通知IDを設定
         await markAsRead(notificationId); // 通知を既読にする処理
         setLoadingId(null); // 処理完了後にリセット

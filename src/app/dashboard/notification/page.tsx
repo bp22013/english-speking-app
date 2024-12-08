@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import NotificationTable from "./table";
 
 type Notification = {
-    id: number;
+    id: string; // 修正: notificationId を string 型に
     message: string;
     isRead: boolean;
     createdAt: string;
@@ -57,7 +57,7 @@ export default function NotificationPage() {
     };
 
     // 通知を既読にする関数
-    const markAsRead = async (notificationId: number) => {
+    const markAsRead = async (notificationId: string) => { // 修正: notificationId 型を string に変更
         try {
             const response = await fetch("/api/notification/MarkNotification", {
                 method: "POST",

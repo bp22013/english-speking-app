@@ -46,7 +46,7 @@ export const StudentNavigationbar = () => {
     // 新規通知数を取得する関数
     const fetchUnreadCount = async () => {
         try {
-            const response = await fetch("/api/notification/GetNumberOfNewNotification", {
+            const response = await fetch("/api/notification/GetNumberOfNewNotification/student", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

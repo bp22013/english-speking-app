@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import NotificationTable from "./table";
 
 type Notification = {
-    id: string; // 修正: notificationId を string 型に
+    id: string;
     message: string;
     isRead: boolean;
     createdAt: string;
@@ -28,7 +28,7 @@ export default function NotificationPage() {
     const fetchNotifications = async (page: number) => {
         setIsLoading(true);
         try {
-            const response = await fetch("/api/notification/GetNotification", {
+            const response = await fetch("/api/notification/GetNotification/student", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -41,14 +41,13 @@ export default function NotificationPage() {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to fetch notifications");
+                toast.error("エラーが発生しました");
             }
 
             const data = await response.json();
             setNotifications(data.notifications || []);
             setTotalPages(data.totalPages || 1);
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
+        } catch {
             toast.error("通知の取得に失敗しました。");
             setNotifications([]);
         } finally {
@@ -57,9 +56,9 @@ export default function NotificationPage() {
     };
 
     // 通知を既読にする関数
-    const markAsRead = async (notificationId: string) => { // 修正: notificationId 型を string に変更
+    const markAsRead = async (notificationId: string) => {
         try {
-            const response = await fetch("/api/notification/MarkNotification", {
+            const response = await fetch("/api/notification/MarkNotification/student", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

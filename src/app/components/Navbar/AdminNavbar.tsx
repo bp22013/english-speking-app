@@ -2,15 +2,12 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { usePathname } from 'next/navigation';
 import { AdminUseAuth } from '@/hooks/useAuth/AdminUseAuth';
 import {
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
     Dropdown,
     DropdownTrigger,
     DropdownMenu,
@@ -22,7 +19,8 @@ import {
     NavbarBrand,
     NavbarItem,
     NavbarMenu,
-    NavbarMenuItem
+    NavbarMenuItem,
+    Badge
 } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 
@@ -35,10 +33,46 @@ export const AdminNavigationbar = () => {
     const loginuser = AdminUseAuth();
     const router = useRouter();
     const pathname: string = usePathname();
+    const [unreadCount, setUnreadCount] = useState(0);
 
     function isActive(link: string): boolean {
         return pathname === link;
     }
+
+    const PushNotification = () => {
+        router.push("/Admindashboard/ReadNotification");
+        router.refresh();
+    };
+
+    const fetchUnreadCount = async () => {
+        try {
+            const response = await fetch("/api/notification/GetNumberOfNewNotification/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: loginuser.email,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setUnreadCount(data.unreadCount || 0);
+            } else {
+                console.error("Failed to fetch unread notifications:", data.error);
+            }
+        } catch (error) {
+            console.error("Error fetching unread notifications:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (loginuser.email) {
+            fetchUnreadCount();
+        }
+    }, [loginuser.email]);
 
     const MenuItems: NavItemProps[] = [
         {
@@ -149,14 +183,15 @@ export const AdminNavigationbar = () => {
                     </NavbarContent>
 
                     <NavbarContent className="ml-auto flex ml-48 mr-auto">
-                        <Popover placement="bottom">
-                            <PopoverTrigger>
-                                <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} />
-                            </PopoverTrigger>
-                            <PopoverContent>
-                                <p className="p-4">お知らせ</p>
-                            </PopoverContent>
-                        </Popover>
+                    <div className="relative">
+                        {unreadCount > 0 ? (
+                            <Badge content={unreadCount} size='md' color='danger'>
+                                <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                            </Badge>
+                        ) : (
+                            <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                        )}
+                    </div>
                         <Dropdown>
                             <DropdownTrigger>
                                 <a className="rounded-md px-3.5 py-0.5 m-1 overflow-hidden relative group cursor-pointer border-2 font-medium border-blue-400 text-blue-400 text-white">

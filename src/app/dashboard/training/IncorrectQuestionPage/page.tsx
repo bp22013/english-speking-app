@@ -247,7 +247,7 @@ const SolveIncorrectQuestionPage = () => {
                                     <output {...props}>
                                         <Tooltip
                                             className="text-tiny text-default-500 rounded-md"
-                                            content="Press Enter to confirm"
+                                            content="再生速度を設定"
                                             placement="left"
                                         >
                                             <input

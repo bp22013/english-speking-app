@@ -5,13 +5,16 @@
 import { useState } from "react";
 import { AdminNavigationbar } from "@/app/components/Navbar/AdminNavbar";
 import { Button, Textarea } from "@nextui-org/react";
+import { AdminUseAuth } from "@/hooks/useAuth/AdminUseAuth";
 import toast from "react-hot-toast";
 
 export default function CreateNotification() {
     const [message, setMessage] = useState("");
+    const loginuser = AdminUseAuth();
 
     // 通知を作成する
     const createNotification = async () => {
+
         if (!message.trim()) {
             toast.error("通知メッセージを入力してください。");
             return;
@@ -24,7 +27,7 @@ export default function CreateNotification() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ message }),
+                body: JSON.stringify({ message, email: loginuser.email }),
             })
                 .then(async (response) => {
                     if (!response.ok) {

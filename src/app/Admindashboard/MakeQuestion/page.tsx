@@ -22,14 +22,17 @@ interface Question {
 const ManageQuestionsPage = () => {
     const [hasMore, setHasMore] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isLoading, setIsLoading] = useState(true); // データ読み込み状態を管理
+    const [isLoading, setIsLoading] = useState(true);
     const [text, setText] = useState("");
     const [correctAnswer, setCorrectAnswer] = useState("");
+    const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+    const [newText, setNewText] = useState<string>("");
+    const [newCorrectAnswer, setNewCorrectAnswer] = useState<string>("");
     const admin = AdminUseAuth();
 
     const list = useAsyncList<Question>({
         async load({ signal, cursor }) {
-            setIsLoading(true); // スピナーを表示
+            setIsLoading(true);
             try {
                 const res = await fetch(cursor || "/api/training/MakeQuestion/GetQuestion", { signal });
                 const json = await res.json();
@@ -48,7 +51,7 @@ const ManageQuestionsPage = () => {
                     cursor: undefined,
                 };
             } finally {
-                setIsLoading(false); // スピナーを非表示
+                setIsLoading(false);
             }
         },
     });
@@ -86,6 +89,36 @@ const ManageQuestionsPage = () => {
         }
     };
 
+    const handleUpdateQuestion = async (id: string) => {
+        if (!newText || !newCorrectAnswer) {
+            toast.error("問題文と正解を入力してください。");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const res = await fetch('/api/training/MakeQuestion/UpdateQuestion', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, text: newText, correctAnswer: newCorrectAnswer }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                toast.error(data.error);
+                return;
+            }
+            
+            toast.success("問題が更新されました");
+            setEditingQuestionId(null);
+            await list.reload();
+        } catch (error) {
+            toast.error("エラーが発生しました。" + error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const handleDeleteQuestion = async (id: string) => {
         setIsSubmitting(true);
         try {
@@ -102,12 +135,19 @@ const ManageQuestionsPage = () => {
             }
             
             toast.success("問題が削除されました");
+            setEditingQuestionId(null);
             await list.reload();
         } catch (error) {
             toast.error("エラーが発生しました。" + error);
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleUpdateClick = (question: Question) => {
+        setEditingQuestionId(question.id);
+        setNewText(question.text);
+        setNewCorrectAnswer(question.correctAnswer);
     };
 
     return (
@@ -150,22 +190,59 @@ const ManageQuestionsPage = () => {
                                 </TableHeader>
                                 <TableBody
                                     items={list.items}
-                                    loadingContent={<Spinner color="primary" />}
+                                    loadingContent={<Spinner color="success" />}
                                 >
                                     {(item: Question) => (
                                         <TableRow key={item.id}>
-                                            <TableCell>{item.text}</TableCell>
-                                            <TableCell>{item.correctAnswer}</TableCell>
+                                            <TableCell>
+                                                {editingQuestionId === item.id ? (
+                                                    <Input
+                                                        value={newText}
+                                                        onChange={(e) => setNewText(e.target.value)}
+                                                    />
+                                                ) : (
+                                                    item.text
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {editingQuestionId === item.id ? (
+                                                    <Input
+                                                        value={newCorrectAnswer}
+                                                        onChange={(e) => setNewCorrectAnswer(e.target.value)}
+                                                    />
+                                                ) : (
+                                                    item.correctAnswer
+                                                )}
+                                            </TableCell>
                                             <TableCell>{item.adminName}</TableCell>
                                             <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
                                             <TableCell>
-                                                <Button
-                                                    size="sm"
-                                                    color="danger"
-                                                    onClick={() => handleDeleteQuestion(item.id)}
-                                                >
-                                                    削除
-                                                </Button>
+                                                <div className="flex gap-2">
+                                                    {editingQuestionId === item.id ? (
+                                                        <Button
+                                                            size="sm"
+                                                            color="success"
+                                                            onClick={() => handleUpdateQuestion(item.id)}
+                                                        >
+                                                            保存
+                                                        </Button>
+                                                    ) : (
+                                                        <Button
+                                                            size="sm"
+                                                            color="secondary"
+                                                            onClick={() => handleUpdateClick(item)}
+                                                        >
+                                                            更新
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        size="sm"
+                                                        color="danger"
+                                                        onClick={() => handleDeleteQuestion(item.id)}
+                                                    >
+                                                        削除
+                                                    </Button>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     )}

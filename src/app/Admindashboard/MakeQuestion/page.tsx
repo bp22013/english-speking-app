@@ -2,14 +2,12 @@
 
 'use client';
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Button, Input, Card, CardHeader, CardBody, Divider, 
-         TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner } from "@nextui-org/react";
+         TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner, Pagination } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { AdminNavigationbar } from "@/app/components/Navbar/AdminNavbar";
 import { AdminUseAuth } from "@/hooks/useAuth/AdminUseAuth";
-import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
-import { useAsyncList } from "@react-stately/data";
 
 interface Question {
     id: string;
@@ -20,127 +18,143 @@ interface Question {
 }
 
 const ManageQuestionsPage = () => {
-    const [hasMore, setHasMore] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [questions, setQuestions] = useState<Question[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isAdding, setIsAdding] = useState<boolean>(false);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
+    const [isUpdating, setIsUpdating] = useState<boolean>(false);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(1);
     const [text, setText] = useState("");
     const [correctAnswer, setCorrectAnswer] = useState("");
     const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
     const [newText, setNewText] = useState<string>("");
     const [newCorrectAnswer, setNewCorrectAnswer] = useState<string>("");
     const admin = AdminUseAuth();
+    const itemsPerPage = 10;
 
-    const list = useAsyncList<Question>({
-        async load({ signal, cursor }) {
-            setIsLoading(true);
-            try {
-                const res = await fetch(cursor || "/api/training/MakeQuestion/GetQuestion", { signal });
-                const json = await res.json();
+    // 問題リストを取得する関数
+    const fetchQuestions = async (page: number) => {
+        setIsLoading(true);
+        try {
+            const res = await fetch("/api/training/MakeQuestion/GetQuestion", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ page, limit: itemsPerPage }),
+            });
+            const data = await res.json();
 
-                if (!res.ok) throw new Error(json.error || "データの取得に失敗しました");
-
-                setHasMore(json.hasMore);
-                return {
-                    items: json.questions as Question[],
-                    cursor: json.hasMore ? `/api/training/MakeQuestion/GetQuestion?page=${json.nextPage}` : undefined,
-                };
-            } catch {
-                toast.error("エラーが発生しました。");
-                return {
-                    items: [] as Question[],
-                    cursor: undefined,
-                };
-            } finally {
-                setIsLoading(false);
+            if (!res.ok) {
+                toast.error(data.error || "データの取得に失敗しました");
             }
-        },
-    });
 
-    const [loaderRef, scrollerRef] = useInfiniteScroll({
-        hasMore,
-        onLoadMore: list.loadMore,
-    });
+            setQuestions(data.questions);
+            setTotalPages(data.totalPages || 1);
+        } catch {
+            toast.error("問題リストの取得に失敗しました。");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
+        fetchQuestions(currentPage);
+    }, [currentPage]);
+
+    // ページ切り替え時の処理
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page); // ページ状態を更新
+    };
+
+    // 問題を追加する関数
     const handleAddQuestion = async () => {
+        setIsAdding(true)
+
         if (!text || !correctAnswer) {
             toast.error("問題文と正解を入力してください。");
             return;
         }
 
-        setIsSubmitting(true);
+        const addQuestionPromise = fetch("/api/training/MakeQuestion/AddQuestion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, correctAnswer, email: admin.email }),
+        });
+
+        toast.promise(addQuestionPromise, {
+            loading: "問題を追加中...",
+            success: "問題が追加されました！",
+            error: "問題の追加に失敗しました。",
+        });
+
         try {
-            const res = await fetch("/api/training/MakeQuestion/AddQuestion", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text, correctAnswer, email: admin.email }),
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "問題の作成に失敗しました");
-
-            toast.success("問題が追加されました");
+            await addQuestionPromise;
             setText("");
             setCorrectAnswer("");
-            await list.reload();
+            fetchQuestions(currentPage);
         } catch {
-            toast.error("エラーが発生しました。");
+            // エラーはreact-hot-toastが処理するので、ここでは何もしません
         } finally {
-            setIsSubmitting(false);
+            setIsUpdating(false);
         }
     };
 
+    // 問題を更新する関数
     const handleUpdateQuestion = async (id: string) => {
+        setIsUpdating(true);
+
         if (!newText || !newCorrectAnswer) {
             toast.error("問題文と正解を入力してください。");
+            setIsUpdating(false);
             return;
         }
 
-        setIsSubmitting(true);
-        try {
-            const res = await fetch('/api/training/MakeQuestion/UpdateQuestion', {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, text: newText, correctAnswer: newCorrectAnswer }),
-            });
+        const updateQuestionPromise = fetch("/api/training/MakeQuestion/UpdateQuestion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, text: newText, correctAnswer: newCorrectAnswer }),
+        });
 
-            const data = await res.json();
-            if (!res.ok) {
-                toast.error(data.error);
-                return;
-            }
-            
-            toast.success("問題が更新されました");
+        toast.promise(updateQuestionPromise, {
+            loading: "問題を更新中...",
+            success: "問題が更新されました！",
+            error: "問題の更新に失敗しました。",
+        });
+
+        try {
+            await updateQuestionPromise;
             setEditingQuestionId(null);
-            await list.reload();
-        } catch (error) {
-            toast.error("エラーが発生しました。" + error);
+            fetchQuestions(currentPage);
+        } catch {
+            // エラーはreact-hot-toastが処理するので、ここでは何もしません
         } finally {
-            setIsSubmitting(false);
+            setIsUpdating(false);
         }
     };
 
+    // 問題を削除する関数
     const handleDeleteQuestion = async (id: string) => {
-        setIsSubmitting(true);
-        try {
-            const res = await fetch('/api/training/MakeQuestion/DeleteQuestion', {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id }),
-            });
+        setIsDeleting(true);
 
-            const data = await res.json();
-            if (!res.ok) {
-                toast.error(data.error);
-                return;
-            }
-            
-            toast.success("問題が削除されました");
-            setEditingQuestionId(null);
-            await list.reload();
-        } catch (error) {
-            toast.error("エラーが発生しました。" + error);
+        const deleteQuestionPromise = fetch("/api/training/MakeQuestion/DeleteQuestion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+        });
+
+        toast.promise(deleteQuestionPromise, {
+            loading: "問題を削除中...",
+            success: "問題が削除されました！",
+            error: "問題の削除に失敗しました。",
+        });
+
+        try {
+            await deleteQuestionPromise;
+            fetchQuestions(currentPage);
+        } catch {
+            // エラーはreact-hot-toastが処理するので、ここでは何もしません
         } finally {
-            setIsSubmitting(false);
+            setIsDeleting(false);
         }
     };
 
@@ -149,12 +163,12 @@ const ManageQuestionsPage = () => {
         setNewText(question.text);
         setNewCorrectAnswer(question.correctAnswer);
     };
-    console.log(editingQuestionId);
 
     return (
         <div className="bg-blue-100 min-h-screen flex flex-col">
             <AdminNavigationbar />
             <div className="flex flex-wrap gap-6 justify-center items-start mt-10 mx-auto max-w-7xl">
+                {/* 問題リスト表示 */}
                 <Card className="shadow-md p-6 flex-1 min-w-[850px]">
                     <CardHeader>
                         <h1 className="text-2xl font-bold text-gray-800">問題リスト</h1>
@@ -166,93 +180,67 @@ const ManageQuestionsPage = () => {
                                 <Spinner label="問題情報を取得中..." color="success" />
                             </div>
                         ) : (
-                            <Table
-                                isHeaderSticky
-                                aria-label="問題リスト"
-                                baseRef={scrollerRef}
-                                bottomContent={
-                                    hasMore ? (
-                                        <div className="flex w-full justify-center">
-                                            <Spinner ref={loaderRef} color="primary" />
-                                        </div>
-                                    ) : null
-                                }
-                                classNames={{
-                                    base: "max-h-[520px] overflow-scroll",
-                                    table: "min-h-[400px]",
-                                }}
-                            >
-                                <TableHeader>
-                                    <TableColumn>問題文</TableColumn>
-                                    <TableColumn>正解</TableColumn>
-                                    <TableColumn>作成者</TableColumn>
-                                    <TableColumn>作成日時</TableColumn>
-                                    <TableColumn>操作</TableColumn>
-                                </TableHeader>
-                                <TableBody
-                                    items={list.items}
-                                    loadingContent={<Spinner color="success" />}
-                                >
-                                    {(item: Question) => (
-                                        <TableRow key={item.id}>
-                                            <TableCell>
-                                                {editingQuestionId === item.id ? (
-                                                    <Input
-                                                        value={newText}
-                                                        onChange={(e) => setNewText(e.target.value)}
-                                                    />
-                                                ) : (
-                                                    item.text
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {editingQuestionId === item.id ? (
-                                                    <Input
-                                                        value={newCorrectAnswer}
-                                                        onChange={(e) => setNewCorrectAnswer(e.target.value)}
-                                                    />
-                                                ) : (
-                                                    item.correctAnswer
-                                                )}
-                                            </TableCell>
-                                            <TableCell>{item.adminName}</TableCell>
-                                            <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-2">
+                            <>
+                                <Table aria-label="問題リスト" shadow="none">
+                                    <TableHeader>
+                                        <TableColumn>問題文</TableColumn>
+                                        <TableColumn>正解</TableColumn>
+                                        <TableColumn>作成者</TableColumn>
+                                        <TableColumn>作成日時</TableColumn>
+                                        <TableColumn>操作</TableColumn>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {questions.map((item) => (
+                                            <TableRow key={item.id}>
+                                                <TableCell>
                                                     {editingQuestionId === item.id ? (
-                                                        <Button
-                                                            size="sm"
-                                                            color="success"
-                                                            onClick={() => handleUpdateQuestion(item.id)}
-                                                        >
-                                                            保存
+                                                        <Input value={newText} onChange={(e) => setNewText(e.target.value)} />
+                                                    ) : (
+                                                        item.text
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {editingQuestionId === item.id ? (
+                                                        <Input value={newCorrectAnswer} onChange={(e) => setNewCorrectAnswer(e.target.value)} />
+                                                    ) : (
+                                                        item.correctAnswer
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>{item.adminName}</TableCell>
+                                                <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
+                                                <TableCell className="flex">
+                                                    {editingQuestionId === item.id ? (
+                                                        <Button size="sm" color="success" isDisabled={isUpdating} onClick={() => handleUpdateQuestion(item.id)}>
+                                                            {isUpdating ? "更新中..." : "保存"}
                                                         </Button>
                                                     ) : (
-                                                        <Button
-                                                            size="sm"
-                                                            color="secondary"
-                                                            onClick={() => handleUpdateClick(item)}
-                                                        >
+                                                        <Button size="sm" color="secondary" onClick={() => handleUpdateClick(item)}>
                                                             更新
                                                         </Button>
                                                     )}
-                                                    <Button
-                                                        size="sm"
-                                                        color="danger"
-                                                        onClick={() => handleDeleteQuestion(item.id)}
-                                                    >
-                                                        削除
+                                                    <Button size="sm" color="danger" className="ml-2" isDisabled={isDeleting} onClick={() => handleDeleteQuestion(item.id)}>
+                                                        {isDeleting ? "削除中..." : "削除"}
                                                     </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                {/* ページネーション */}
+                                <div className="flex justify-center mt-6">
+                                    <Pagination
+                                        total={totalPages}
+                                        page={currentPage}
+                                        onChange={handlePageChange}
+                                        color="secondary"
+                                    />
+                                </div>
+                            </>
                         )}
                     </CardBody>
                 </Card>
 
+                {/* 問題追加フォーム */}
                 <Card className="shadow-md p-6 flex-1 min-w-[400px]">
                     <CardHeader>
                         <h1 className="text-2xl font-bold text-gray-800">問題を追加</h1>
@@ -271,12 +259,8 @@ const ManageQuestionsPage = () => {
                             value={correctAnswer}
                             onChange={(e) => setCorrectAnswer(e.target.value)}
                         />
-                        <Button
-                            color="primary"
-                            onClick={handleAddQuestion}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? "追加中..." : "問題を追加"}
+                        <Button color="primary" isDisabled={isAdding} onClick={handleAddQuestion}>
+                            {isAdding ? "追加中..." : "問題を追加"}
                         </Button>
                     </CardBody>
                 </Card>

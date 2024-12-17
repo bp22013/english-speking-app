@@ -7,17 +7,22 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
     try {
-        // ページングのクエリパラメータを取得
-        const url = new URL(request.url);
-        const pageParam = url.searchParams.get("page");
-        const page = pageParam ? parseInt(pageParam, 10) : 1;
-        const pageSize = 10; // 1ページあたりのデータ件数
+        // リクエストボディからページとリミット情報を取得
+        const body = await request.json();
+        const { page = 1, limit = 10 } = body; // デフォルト値: page=1, limit=10
+
+        const pageNumber = parseInt(page, 10);
+        const pageSize = parseInt(limit, 10);
+
+        if (isNaN(pageNumber) || isNaN(pageSize)) {
+            return NextResponse.json({ error: "無効なページ情報です。" }, { status: 400 });
+        }
 
         // データを取得（ページング対応）
         const questions = await prisma.question.findMany({
-            skip: (page - 1) * pageSize,
+            skip: (pageNumber - 1) * pageSize,
             take: pageSize,
             select: {
                 id: true, // UUIDで管理される問題ID
@@ -42,22 +47,22 @@ export async function GET(request: Request) {
             return acc;
         }, {} as Record<string, string>);
 
+        // レスポンスデータのフォーマット
         const formattedQuestions = questions.map((question) => ({
             ...question,
             adminName: adminMap[question.adminId] || "不明", // 管理者の名前を結合
         }));
 
-        // 次のページがあるかを判定
+        // 総件数を取得してページ総数を計算
         const totalQuestions = await prisma.question.count();
-        const hasMore = page * pageSize < totalQuestions;
+        const totalPages = Math.ceil(totalQuestions / pageSize);
 
         return NextResponse.json({
             questions: formattedQuestions,
-            hasMore,
-            nextPage: hasMore ? page + 1 : null, // 次のページ番号を設定
+            totalPages,
+            currentPage: pageNumber,
         });
-    } catch (error) {
-        console.error("Error fetching questions:", error);
+    } catch {
         return NextResponse.json({ error: "サーバーエラーが発生しました。" }, { status: 500 });
     }
 }

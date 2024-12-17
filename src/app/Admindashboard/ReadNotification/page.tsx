@@ -34,7 +34,9 @@ export default function ReadNotificationPage() {
                 body: JSON.stringify({ email: loginuser.email, page, limit: itemsPerPage }),
             });
 
-            if (!response.ok) throw new Error("エラーが発生しました");
+            if (!response.ok){
+                toast.error("エラーが発生しました");
+            }
 
             const data = await response.json();
             setNotifications(data.notifications || []);

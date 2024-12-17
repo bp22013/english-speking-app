@@ -43,7 +43,7 @@ export async function POST(request: Request) {
             data: { message: message }
         });
 
-        return NextResponse.json({ message: "通知を削除しました" });
+        return NextResponse.json({ message: "通知を更新しました" });
     } catch (error) {
         console.error("削除エラー:", error);
         return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });

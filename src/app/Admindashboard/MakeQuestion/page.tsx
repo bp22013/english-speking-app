@@ -149,6 +149,7 @@ const ManageQuestionsPage = () => {
         setNewText(question.text);
         setNewCorrectAnswer(question.correctAnswer);
     };
+    console.log(editingQuestionId);
 
     return (
         <div className="bg-blue-100 min-h-screen flex flex-col">

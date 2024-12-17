@@ -77,8 +77,7 @@ export async function POST(request: Request) {
             totalPages,
             currentPage: page,
         });
-    } catch (error) {
-        console.error("Error fetching notifications:", error);
+    } catch {
         return NextResponse.json(
             { error: "サーバーエラーが発生しました" },
             { status: 500 }

@@ -19,7 +19,8 @@ import {
     NavbarBrand,
     NavbarItem,
     NavbarMenu,
-    NavbarMenuItem
+    NavbarMenuItem,
+    Tooltip
 } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 
@@ -175,10 +176,31 @@ export const StudentNavigationbar = () => {
                     <div className="relative">
                         {unreadCount > 0 ? (
                             <Badge content={unreadCount} size='md' color='danger'>
-                                <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                                <Tooltip 
+                                    content={unreadCount + "件の新規通知があります"} 
+                                    placement='bottom-end' 
+                                    classNames={{
+                                        base: [
+                                            "before:bg-neutral-400 dark:before:bg-white",
+                                        ],
+                                        content: ["py-2 px-4 shadow-xl", "text-black bg-[#ffa500] from-white to-neutral-400"],
+                                    }}
+                                >
+                                    <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                                </Tooltip>
                             </Badge>
                         ) : (
-                            <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                            <Tooltip 
+                                content="新規通知はありません" 
+                                placement='bottom-end' 
+                                classNames={{
+                                    base: [
+                                        "before:bg-neutral-400 dark:before:bg-white",
+                                    ],
+                                    content: ["py-2 px-4 shadow-xl", "text-black bg-gradient-to-br from-white to-neutral-400"],
+                                }}>
+                                <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                            </Tooltip>
                         )}
                     </div>
                     <Dropdown>

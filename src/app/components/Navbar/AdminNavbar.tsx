@@ -20,7 +20,8 @@ import {
     NavbarItem,
     NavbarMenu,
     NavbarMenuItem,
-    Badge
+    Badge,
+    Tooltip,
 } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 
@@ -183,15 +184,36 @@ export const AdminNavigationbar = () => {
                     </NavbarContent>
 
                     <NavbarContent className="ml-auto flex ml-48 mr-auto">
-                    <div className="relative">
-                        {unreadCount > 0 ? (
-                            <Badge content={unreadCount} size='md' color='danger'>
-                                <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
-                            </Badge>
-                        ) : (
-                            <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
-                        )}
-                    </div>
+                        <div className="relative">
+                            {unreadCount > 0 ? (
+                                <Badge content={unreadCount} size='md' color='danger'>
+                                    <Tooltip 
+                                        content={unreadCount + "件の新規通知があります"} 
+                                        placement='bottom-end' 
+                                        classNames={{
+                                            base: [
+                                                "before:bg-neutral-400 dark:before:bg-white",
+                                            ],
+                                            content: ["py-2 px-4 shadow-xl", "text-black bg-[#ffa500] from-white to-neutral-400"],
+                                        }}
+                                    >
+                                        <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                                    </Tooltip>
+                                </Badge>
+                            ) : (
+                                <Tooltip 
+                                    content="新規通知はありません" 
+                                    placement='bottom-end' 
+                                    classNames={{
+                                        base: [
+                                            "before:bg-neutral-400 dark:before:bg-white",
+                                        ],
+                                        content: ["py-2 px-4 shadow-xl", "text-black bg-gradient-to-br from-white to-neutral-400"],
+                                    }}>
+                                    <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
+                                </Tooltip>
+                            )}
+                        </div>
                         <Dropdown>
                             <DropdownTrigger>
                                 <a className="rounded-md px-3.5 py-0.5 m-1 overflow-hidden relative group cursor-pointer border-2 font-medium border-blue-400 text-blue-400 text-white">

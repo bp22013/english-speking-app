@@ -12,7 +12,6 @@ import { AdminNavigationbar } from "@/app/components/Navbar/AdminNavbar";
 import { AdminUseAuth } from "@/hooks/useAuth/AdminUseAuth";
 import { PiMagnifyingGlassDuotone } from "react-icons/pi";
 
-// Question インターフェースにレベルを追加
 interface Question {
     id: string;
     text: string;
@@ -38,7 +37,7 @@ const ManageQuestionsPage = () => {
     const [newCorrectAnswer, setNewCorrectAnswer] = useState<string>("");
     const [newLevel, setNewLevel] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const [sortOption, setSortOption] = useState<string>("createdAt-desc"); // デフォルトの並び替えオプション
+    const [sortOption, setSortOption] = useState<string>("createdAt-desc");
     const admin = AdminUseAuth();
     const itemsPerPage = 10;
 
@@ -111,7 +110,7 @@ const ManageQuestionsPage = () => {
             setLevel(null);
             fetchQuestions();
         } catch {
-            // エラーはreact-hot-toastが処理するので、ここでは何もしません
+            // エラーはreact-hot-toastが処理するので、ここでは何もしない
         } finally {
             setIsAdding(false);
         }
@@ -144,7 +143,7 @@ const ManageQuestionsPage = () => {
             setEditingQuestionId(null);
             fetchQuestions();
         } catch {
-            // エラーはreact-hot-toastが処理するので、ここでは何もしません
+            // エラーはreact-hot-toastが処理するので、ここでは何もしない
         } finally {
             setIsUpdating(false);
         }
@@ -170,7 +169,7 @@ const ManageQuestionsPage = () => {
             await deleteQuestionPromise;
             fetchQuestions();
         } catch {
-            // エラーはreact-hot-toastが処理するので、ここでは何もしません
+            // エラーはreact-hot-toastが処理するので、ここでは何もしない
         } finally {
             setIsDeleting(false);
         }
@@ -208,7 +207,6 @@ const ManageQuestionsPage = () => {
                     <CardHeader className="flex justify-between items-center">
                         <h1 className="text-2xl font-bold text-gray-800">問題リスト</h1>
                         <div className="flex items-center gap-4">
-                            {/* 検索ボックス */}
                             <Input
                                 placeholder="検索"
                                 value={searchQuery}
@@ -217,7 +215,6 @@ const ManageQuestionsPage = () => {
                                 color="primary"
                                 className=""
                             />
-                            {/* 並び替えセレクト */}
                             <Select
                                 value={sortOption}
                                 placeholder="並び替え"

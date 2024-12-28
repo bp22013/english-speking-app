@@ -27,6 +27,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "指定された問題が見つかりません。" }, { status: 404 });
         }
 
+        // 現在時刻に6時間を加算
+        const updatedAt = new Date();
+        updatedAt.setHours(updatedAt.getHours() + 6);
+
         // 関連データの更新 (例: assignedQuestion テーブルで該当する質問を関連付けるデータのフラグをリセット)
         await prisma.assignedQuestion.updateMany({
             where: { questionId: id },
@@ -43,7 +47,7 @@ export async function POST(request: Request) {
                 text,
                 correctAnswer,
                 level,
-                updatedAt: new Date(), // 更新日時を記録
+                updatedAt, // 加算済みの更新日時を記録
             },
         });
 

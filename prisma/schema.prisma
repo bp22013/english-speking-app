@@ -68,6 +68,7 @@ model Question {
     correctAnswer             String?                  // 正解を保持
     createdBy                 Admin                    @relation(fields: [adminId], references: [id])
     adminId                   String                   // 作成者 (Admin) のID
+    level                     Int                      // 問題の難易度やレベル
     createdAt                 DateTime                 @default(now())
     updatedAt                 DateTime?                @updatedAt
     answers                   Answer[]                 // この問題への回答を保持

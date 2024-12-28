@@ -10,10 +10,14 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { text, correctAnswer, email } = body;
+        const { text, correctAnswer, level, email } = body;
 
-        if (!text || !correctAnswer) {
-            return NextResponse.json({ error: "問題文と正解は必須です。" }, { status: 400 });
+        // 入力チェック
+        if (!text || !correctAnswer || level === undefined) {
+            return NextResponse.json(
+                { error: "問題文、正解、レベルは必須です。" },
+                { status: 400 }
+            );
         }
 
         const admin = await prisma.admin.findUnique({
@@ -22,7 +26,10 @@ export async function POST(request: Request) {
         });
 
         if (!admin) {
-            return NextResponse.json({ error: "作成権限がありません。" }, { status: 403 });
+            return NextResponse.json(
+                { error: "作成権限がありません。" },
+                { status: 403 }
+            );
         }
 
         const adminId = admin.id;
@@ -32,6 +39,7 @@ export async function POST(request: Request) {
             data: {
                 text,
                 correctAnswer,
+                level,
                 adminId,
             },
         });
@@ -56,6 +64,9 @@ export async function POST(request: Request) {
         });
     } catch (error) {
         console.error("Error creating question:", error);
-        return NextResponse.json({ error: "サーバーエラーが発生しました。" }, { status: 500 });
+        return NextResponse.json(
+            { error: "サーバーエラーが発生しました。" },
+            { status: 500 }
+        );
     }
 }

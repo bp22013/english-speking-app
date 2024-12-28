@@ -1,7 +1,5 @@
 /* 問題作成ページの問題情報を取得するAPI */
 
-'use server';
-
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
@@ -9,9 +7,9 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
     try {
-        // リクエストボディからページとリミット情報を取得
+        // リクエストボディから検索クエリと並び替えオプションを取得
         const body = await request.json();
-        const { page = 1, limit = 10 } = body; // デフォルト値: page=1, limit=10
+        const { page = 1, limit = 10, searchQuery = "", sortOption = "createdAt-desc" } = body;
 
         const pageNumber = parseInt(page, 10);
         const pageSize = parseInt(limit, 10);
@@ -20,20 +18,51 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "無効なページ情報です。" }, { status: 400 });
         }
 
-        // データを取得（ページング対応）
-        const questions = await prisma.question.findMany({
-            skip: (pageNumber - 1) * pageSize,
-            take: pageSize,
+        // 全データを取得
+        let questions = await prisma.question.findMany({
             select: {
-                id: true, // UUIDで管理される問題ID
-                text: true, // 問題文
-                correctAnswer: true, // 正解
-                adminId: true, // 管理者のID
-                createdAt: true, // 作成日時
-                updatedAt: true, // 更新日時
+                id: true,
+                text: true,
+                correctAnswer: true,
+                level: true,
+                adminId: true,
+                createdAt: true,
+                updatedAt: true,
             },
-            orderBy: { createdAt: "desc" }, // 作成日時順に並び替え
         });
+
+        // 検索フィルタ
+        if (searchQuery.trim() !== "") {
+            const query = searchQuery.toLowerCase();
+            questions = questions.filter((q) =>
+                q.text.toLowerCase().includes(query) ||
+                (q.correctAnswer ?? "").toLowerCase().includes(query)
+            );
+        }
+
+        // 並び替え処理
+        switch (sortOption) {
+            case "createdAt-desc":
+                questions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                break;
+            case "createdAt-asc":
+                questions.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                break;
+            case "text-asc":
+                questions.sort((a, b) => a.text.localeCompare(b.text));
+                break;
+            case "text-desc":
+                questions.sort((a, b) => b.text.localeCompare(a.text));
+                break;
+            case "level-asc":
+                questions.sort((a, b) => a.level - b.level);
+                break;
+            case "level-desc":
+                questions.sort((a, b) => b.level - a.level);
+                break;
+            default:
+                break;
+        }
 
         // Admin テーブルから名前を取得して質問に結合
         const adminIds = [...new Set(questions.map((q) => q.adminId))];
@@ -50,19 +79,26 @@ export async function POST(request: Request) {
         // レスポンスデータのフォーマット
         const formattedQuestions = questions.map((question) => ({
             ...question,
-            adminName: adminMap[question.adminId] || "不明", // 管理者の名前を結合
+            adminName: adminMap[question.adminId] || "不明",
         }));
 
-        // 総件数を取得してページ総数を計算
-        const totalQuestions = await prisma.question.count();
+        // ページング処理
+        const totalQuestions = formattedQuestions.length;
         const totalPages = Math.ceil(totalQuestions / pageSize);
+        const paginatedQuestions = formattedQuestions.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 
         return NextResponse.json({
-            questions: formattedQuestions,
+            allQuestions: formattedQuestions, // ページネーション関係なく全件
+            questions: paginatedQuestions, // ページネーション対象
             totalPages,
             currentPage: pageNumber,
+            totalQuestions,
         });
-    } catch {
-        return NextResponse.json({ error: "サーバーエラーが発生しました。" }, { status: 500 });
+    } catch (error) {
+        console.error("Error fetching questions:", error);
+        return NextResponse.json(
+            { error: "サーバーエラーが発生しました。" },
+            { status: 500 }
+        );
     }
 }

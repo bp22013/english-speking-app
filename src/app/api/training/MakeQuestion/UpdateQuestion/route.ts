@@ -10,10 +10,11 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, text, correctAnswer } = body;
+        const { id, text, correctAnswer, level } = body;
 
-        // ID の検証
-        if (typeof id !== "string" || id.trim() === "" || !text || !correctAnswer) {
+        // パラメータの検証
+        if (typeof id !== "string" || id.trim() === "" || typeof text !== "string" || text.trim() === "" ||
+            typeof correctAnswer !== "string" || correctAnswer.trim() === "" || typeof level !== "number") {
             return NextResponse.json({ error: "有効なパラメータを指定してください。" }, { status: 400 });
         }
 
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
             data: {
                 text,
                 correctAnswer,
+                level,
                 updatedAt: new Date(), // 更新日時を記録
             },
         });

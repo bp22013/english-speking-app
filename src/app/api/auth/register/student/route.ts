@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
         //UTCを日本時間に変換
         const now = new Date();
-        const japanTime = add(toZonedTime(now, 'Asia/Tokyo'), { hours:9 });
+        const japanTime = add(toZonedTime(now, 'Asia/Tokyo'), { hours: 9 });
 
         // データベースに新規生徒情報を作成
         const newStudent = await prisma.student.create({
@@ -57,8 +57,25 @@ export async function POST(request: NextRequest) {
             },
         });
 
+        // すべての問題を取得
+        const allQuestions = await prisma.question.findMany({
+            select: { id: true },
+        });
+
+        // 新規生徒にのみ `AssignedQuestion` を作成
+        const assignedQuestions = allQuestions.map((question) => ({
+            studentId: newStudent.id,
+            questionId: question.id,
+            isAnswered: false,
+            isCorrect: null,
+        }));
+
+        await prisma.assignedQuestion.createMany({
+            data: assignedQuestions,
+        });
+
         return NextResponse.json(
-            { message: "生徒が正常に登録されました", success: true, newStudent },
+            { message: "生徒が正常に登録され、AssignedQuestionに問題が分配されました", success: true, newStudent },
             { status: 200 }
         );
     } catch (error) {

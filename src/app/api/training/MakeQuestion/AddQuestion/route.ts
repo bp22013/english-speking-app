@@ -34,6 +34,21 @@ export async function POST(request: Request) {
 
         const adminId = admin.id;
 
+        // 重複チェック: 問題文と正解の組み合わせが既存のデータに存在するか確認
+        const existingQuestion = await prisma.question.findFirst({
+            where: {
+                text,
+                correctAnswer,
+            },
+        });
+
+        if (existingQuestion) {
+            return NextResponse.json(
+                { error: "同じ問題文と正解が既に存在します。" },
+                { status: 400 }
+            );
+        }
+
         // 問題を作成
         const newQuestion = await prisma.question.create({
             data: {

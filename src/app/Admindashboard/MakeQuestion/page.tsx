@@ -25,10 +25,10 @@ const ManageQuestionsPage = () => {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [allQuestions, setAllQuestions] = useState<Question[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [isAdding, setIsAdding] = useState<boolean>(false);
     const [isDeleting, setIsDeleting] = useState<boolean>(false);
     const [isUpdating, setIsUpdating] = useState<boolean>(false);
-    const [currentPage, setCurrentPage] = useState<number>(1);
     const [text, setText] = useState("");
     const [correctAnswer, setCorrectAnswer] = useState("");
     const [level, setLevel] = useState<number | null>(null);
@@ -50,17 +50,18 @@ const ManageQuestionsPage = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ page: currentPage, limit: itemsPerPage, searchQuery, sortOption }),
             });
+    
             const data = await res.json();
-
-            if (!res.ok) {
-                toast.error(data.error || "データの取得に失敗しました");
-                return;
+    
+            if (res.ok) {
+                setQuestions(data.questions);
+                setAllQuestions(data.allQuestions);
+                console.log("問題リストを取得しました！");
+            } else {
+                console.error(data.error || "データの取得に失敗しました。");
             }
-
-            setQuestions(data.questions);
-            setAllQuestions(data.allQuestions);
-        } catch {
-            toast.error("問題リストの取得に失敗しました。");
+        } catch (error) {
+            console.error("問題リストの取得に失敗しました。");
         } finally {
             setIsLoading(false);
         }
@@ -84,106 +85,127 @@ const ManageQuestionsPage = () => {
     // 問題を追加する関数
     const handleAddQuestion = async () => {
         setIsAdding(true);
-
         if (!text || !correctAnswer || level === null) {
             toast.error("問題文、正解、レベルを入力してください。");
-            setIsAdding(false);
             return;
         }
 
-        const addQuestionPromise = fetch("/api/training/MakeQuestion/AddQuestion", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text, correctAnswer, level, email: admin.email }),
-        });
-
-        toast.promise(addQuestionPromise, {
-            loading: "問題を追加中...",
-            success: "問題が追加されました！",
-            error: "問題の追加に失敗しました。",
-        });
-
-        try {
-            await addQuestionPromise;
-            setText("");
-            setCorrectAnswer("");
-            setLevel(null);
-            fetchQuestions();
-        } catch {
-            // エラーはreact-hot-toastが処理するので、ここでは何もしない
-        } finally {
-            setIsAdding(false);
-        }
+        toast.promise(
+            new Promise(async (resolve, reject) => {
+                try {
+                    const res = await fetch("/api/training/MakeQuestion/AddQuestion", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text, correctAnswer, level, email: admin.email }),
+                    });
+        
+                    const data = await res.json();
+        
+                    if (res.ok) {
+                        resolve("問題が追加されました！");
+                    } else {
+                        reject(data.error || "問題の追加に失敗しました。");
+                    }
+                } catch (error) {
+                    reject("サーバーエラーが発生しました。");
+                } finally {
+                    setIsAdding(false);
+                }
+            }),
+            {
+                loading: "問題を追加中...",
+                success: "問題が追加されました！",
+                error: (message) => message, // サーバーから返されるエラーメッセージを表示
+            }
+        );
     };
 
     // 問題を更新する関数
     const handleUpdateQuestion = async (id: string) => {
+
         setIsUpdating(true);
 
-        if (!newText || !newCorrectAnswer || !newLevel) {
-            toast.error("問題文と正解を入力してください。");
-            setIsUpdating(false);
+        if (!newText || !newCorrectAnswer || newLevel === null) {
+            toast.error("問題文、正解、レベルを入力してください。");
             return;
         }
 
-        const updateQuestionPromise = fetch("/api/training/MakeQuestion/UpdateQuestion", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, text: newText, correctAnswer: newCorrectAnswer, level: newLevel }),
-        });
+        toast.promise(
+            new Promise(async (resolve, reject) => {
+                try {
+                    const res = await fetch("/api/training/MakeQuestion/UpdateQuestion", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id, text: newText, correctAnswer: newCorrectAnswer, level: newLevel }),
+                    });
 
-        toast.promise(updateQuestionPromise, {
-            loading: "問題を更新中...",
-            success: "問題が更新されました！",
-            error: "問題の更新に失敗しました。",
-        });
+                    const data = await res.json();
 
-        try {
-            await updateQuestionPromise;
-            setEditingQuestionId(null);
-            fetchQuestions();
-        } catch {
-            // エラーはreact-hot-toastが処理するので、ここでは何もしない
-        } finally {
-            setIsUpdating(false);
-        }
+                    if (res.ok) {
+                        setEditingQuestionId(null);
+                        fetchQuestions();
+                        resolve("問題が更新されました！");
+                    } else {
+                        reject(data.error || "問題の更新に失敗しました。");
+                    }
+                } catch (error) {
+                    reject("問題の更新に失敗しました。");
+                } finally {
+                    setIsUpdating(false);
+                }
+            }),
+            {
+                loading: "問題を更新中...",
+                success: "問題が更新されました！",
+                error: (message) => message,
+            }
+        );
     };
 
     // 問題を削除する関数
     const handleDeleteQuestion = async (id: string) => {
         setIsDeleting(true);
 
-        const deleteQuestionPromise = fetch("/api/training/MakeQuestion/DeleteQuestion", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id }),
-        });
+        toast.promise(
+            new Promise(async (resolve, reject) => {
+                try {
+                    const res = await fetch("/api/training/MakeQuestion/DeleteQuestion", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id }),
+                    });
 
-        toast.promise(deleteQuestionPromise, {
-            loading: "問題を削除中...",
-            success: "問題が削除されました！",
-            error: "問題の削除に失敗しました。",
-        });
+                    const data = await res.json();
 
-        try {
-            await deleteQuestionPromise;
-            fetchQuestions();
-        } catch {
-            // エラーはreact-hot-toastが処理するので、ここでは何もしない
-        } finally {
-            setIsDeleting(false);
-        }
+                    if (res.ok) {
+                        fetchQuestions();
+                        resolve("問題が削除されました！");
+                    } else {
+                        reject(data.error || "問題の削除に失敗しました。");
+                    }
+                } catch (error) {
+                    reject("問題の削除に失敗しました。");
+                } finally {
+                    setIsDeleting(false);
+                }
+            }),
+            {
+                loading: "問題を削除中...",
+                success: "問題が削除されました！",
+                error: (message) => message,
+            }
+        );
     };
+
+    useEffect(() => {
+        fetchQuestions();
+    }, [currentPage, searchQuery, sortOption]);
 
     const handleUpdateClick = (question: Question) => {
         setEditingQuestionId(question.id);
         setNewText(question.text);
         setNewCorrectAnswer(question.correctAnswer);
     };
-
-    useEffect(() => {
-        fetchQuestions();
-    }, [currentPage, searchQuery, sortOption]);
 
     const selectProps = [
         { key: "createdAt-desc", label: "作成日: 新しい順" },

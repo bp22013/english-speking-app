@@ -2,28 +2,35 @@
 
 'use client';
 
-import { Card, CardHeader, CardBody, CardFooter, Image } from '@nextui-org/react';
+import { Card, CardHeader, CardBody, CardFooter, Image, Select, SelectItem } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { GoPencil } from "react-icons/go";
 
 export const Training = () => {
-
     const router = useRouter();
+    const [level, setLevel] = useState<number | null>(null);
+    const [IncorrectLevel, IncorrectsetLevel] = useState<number | null>(null);
 
     // 仕分けページへプッシュ
     const PushQuestionPage = () => {
-        router.push("/dashboard/training/QuestionPage");
-    }
+        router.push(`/dashboard/training/QuestionPage?level=${level}`);
+    };
 
     // ドリルページにプッシュ
     const PushIncorrectQuestionPage = () => {
-        router.push("/dashboard/training/IncorrectQuestionPage");
-    }
+        router.push(`/dashboard/training/IncorrectQuestionPage?level=${IncorrectLevel}`);
+    };
+
+    const levelProps = Array.from({ length: 10 }, (_, i) => ({
+        key: `${i + 1}`,
+        label: `${i + 1}`,
+    }));
 
     return (
-        <>
-            <div className="container mx-auto px-4 flex flex-col items-center transform scale-100 md:scale-90 sm:scale-60 sm:mt-10 ">
-                <div className="flex flex-wrap justify-center gap-20 lg:gap-48">
+        <div className="container mx-auto px-4 flex flex-col items-center transform scale-100 md:scale-90 sm:scale-60 sm:mt-10 ">
+            <div className="flex flex-wrap justify-center gap-20 lg:gap-48">
+                <div>
                     <Card className="w-[160px] h-[215px] sm:w-[140px] sm:h-[190px]" isPressable onPress={PushQuestionPage}>
                         <CardHeader className="flex items-center justify-center gap-2 text-2xl sm:text-xl h-[45px] sm:h-[40px]">
                             <p>
@@ -45,7 +52,20 @@ export const Training = () => {
                             </p>
                         </CardFooter>
                     </Card>
+                    <Select
+                        value={level?.toString()}
+                        onChange={(e) => setLevel(parseInt(e.target.value, 10))}
+                        placeholder="レベルを選択"
+                        size="md"
+                        className="max-w-xs mt-3"
+                    >
+                        {levelProps.map((item) => (
+                            <SelectItem key={item.key}>{item.label}</SelectItem>
+                        ))}
+                    </Select>
+                </div>
 
+                <div>
                     <Card className="w-[160px] h-[215px] sm:w-[140px] sm:h-[190px]" isPressable onPress={PushIncorrectQuestionPage}>
                         <CardHeader className="flex items-center justify-center gap-2 text-2xl sm:text-xl h-[45px] sm:h-[40px]">
                             <p>
@@ -67,8 +87,19 @@ export const Training = () => {
                             </p>
                         </CardFooter>
                     </Card>
+                    <Select
+                        value={IncorrectLevel?.toString()}
+                        onChange={(e) => IncorrectsetLevel(parseInt(e.target.value, 10))}
+                        placeholder="レベルを選択"
+                        size="md"
+                        className="max-w-xs mt-3"
+                    >
+                        {levelProps.map((item) => (
+                            <SelectItem key={item.key}>{item.label}</SelectItem>
+                        ))}
+                    </Select>
                 </div>
             </div>
-        </>
+        </div>
     );
 };

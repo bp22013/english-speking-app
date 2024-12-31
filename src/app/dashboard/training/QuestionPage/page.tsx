@@ -45,11 +45,12 @@ const SolveQuestionPage = () => {
                     body: JSON.stringify({ studentId: loginUser.studentId, level: level ? parseInt(level, 10) : null }),
                 });
 
-                if (!res.ok) throw new Error("問題の取得に失敗しました");
                 const data = await res.json();
+
+                if (!res.ok) throw new Error("問題の取得に失敗しました");
                 setQuestions(data.questions as Question[]);
             } catch (error) {
-                toast.error((error as Error).message);
+                toast.error("サーバーエラーが発生しました");
             } finally {
                 setIsLoading(false);
             }

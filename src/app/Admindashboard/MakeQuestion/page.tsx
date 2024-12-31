@@ -106,7 +106,7 @@ const ManageQuestionsPage = () => {
                     } else {
                         reject(data.error || "問題の追加に失敗しました。");
                     }
-                } catch (error) {
+                } catch {
                     reject("サーバーエラーが発生しました。");
                 } finally {
                     setIsAdding(false);
@@ -148,7 +148,7 @@ const ManageQuestionsPage = () => {
                     } else {
                         reject(data.error || "問題の更新に失敗しました。");
                     }
-                } catch (error) {
+                } catch {
                     reject("問題の更新に失敗しました。");
                 } finally {
                     setIsUpdating(false);
@@ -183,7 +183,7 @@ const ManageQuestionsPage = () => {
                     } else {
                         reject(data.error || "問題の削除に失敗しました。");
                     }
-                } catch (error) {
+                } catch {
                     reject("問題の削除に失敗しました。");
                 } finally {
                     setIsDeleting(false);

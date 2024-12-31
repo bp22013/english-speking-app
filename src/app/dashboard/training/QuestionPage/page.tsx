@@ -49,7 +49,7 @@ const SolveQuestionPage = () => {
 
                 if (!res.ok) throw new Error("問題の取得に失敗しました");
                 setQuestions(data.questions as Question[]);
-            } catch (error) {
+            } catch {
                 toast.error("サーバーエラーが発生しました");
             } finally {
                 setIsLoading(false);

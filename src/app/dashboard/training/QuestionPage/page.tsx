@@ -47,7 +47,10 @@ const SolveQuestionPage = () => {
 
                 const data = await res.json();
 
-                if (!res.ok) throw new Error("問題の取得に失敗しました");
+                if (!res.ok){
+                    toast.error("問題の取得に失敗しました");
+                }
+                
                 setQuestions(data.questions as Question[]);
             } catch {
                 toast.error("サーバーエラーが発生しました");

@@ -60,7 +60,7 @@ const ManageQuestionsPage = () => {
             } else {
                 console.error(data.error || "データの取得に失敗しました。");
             }
-        } catch (error) {
+        } catch {
             console.error("問題リストの取得に失敗しました。");
         } finally {
             setIsLoading(false);

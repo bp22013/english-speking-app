@@ -2,10 +2,14 @@
 
 'use client';
 
-import { Card, CardHeader, CardBody, CardFooter, Image, Select, SelectItem } from '@nextui-org/react';
+import { CardHeader, CardBody, CardFooter, Image, Select, SelectItem } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { GoPencil } from "react-icons/go";
+import dynamic from 'next/dynamic';
+import toast from 'react-hot-toast';
+
+const Card = dynamic(() => import('@nextui-org/react').then((mod) => mod.Card), { ssr: false });
 
 export const Training = () => {
     const router = useRouter();
@@ -14,12 +18,20 @@ export const Training = () => {
 
     // 仕分けページへプッシュ
     const PushQuestionPage = () => {
-        router.push(`/dashboard/training/QuestionPage?level=${level}`);
+        if (level !== null) {
+            router.push(`/dashboard/training/QuestionPage?level=${level}`);
+        } else {
+            toast.error("レベルを選択してください");
+        }
     };
 
     // ドリルページにプッシュ
     const PushIncorrectQuestionPage = () => {
-        router.push(`/dashboard/training/IncorrectQuestionPage?level=${IncorrectLevel}`);
+        if (level !== null) {
+            router.push(`/dashboard/training/IncorrectQuestionPage?level=${IncorrectLevel}`);
+        } else {
+            toast.error("レベルを選択してください");
+        }
     };
 
     const levelProps = Array.from({ length: 10 }, (_, i) => ({

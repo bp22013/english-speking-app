@@ -9,9 +9,9 @@ const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
     try {
-        const { questionId, studentId, submittedAnswer } = await request.json();
+        const { questionId, studentId, submittedAnswer, level } = await request.json();
 
-        if (!questionId || !studentId || submittedAnswer === undefined) {
+        if (!questionId || !studentId || submittedAnswer === undefined || level === undefined) {
             return NextResponse.json(
                 { error: "リクエストデータが不完全です" },
                 { status: 400 }
@@ -102,18 +102,26 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // 全ての AssignedQuestion が回答済みかをチェック
-        const remainingQuestions = await prisma.assignedQuestion.findMany({
+        // 該当レベルの AssignedQuestion が全て回答済みかをチェック
+        const remainingQuestionsInLevel = await prisma.assignedQuestion.findMany({
             where: {
                 studentId: currentUserId,
                 isAnswered: false,
+                question: {
+                    level: level, // レベルでフィルタリング
+                },
             },
         });
 
-        if (remainingQuestions.length === 0) {
-            // 全て回答済みの場合、isAnswered をリセット
+        if (remainingQuestionsInLevel.length === 0) {
+            // 該当レベルの全ての問題が回答済みの場合、該当レベルの isAnswered をリセット
             await prisma.assignedQuestion.updateMany({
-                where: { studentId: currentUserId },
+                where: {
+                    studentId: currentUserId,
+                    question: {
+                        level: level,
+                    },
+                },
                 data: { isAnswered: false },
             });
         }

@@ -32,12 +32,12 @@ const SolveQuestionPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const loginUser = StudentUseAuth();
+    const level = searchParams.get('level');
 
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
                 setIsLoading(true);
-                const level = searchParams.get('level');
 
                 const res = await fetch("/api/training/GetQuestion/getAssigned", {
                     method: "POST",
@@ -50,7 +50,7 @@ const SolveQuestionPage = () => {
                 if (!res.ok){
                     toast.error("問題の取得に失敗しました");
                 }
-                
+
                 setQuestions(data.questions as Question[]);
             } catch {
                 toast.error("サーバーエラーが発生しました");
@@ -74,6 +74,7 @@ const SolveQuestionPage = () => {
                     questionId: question.id,
                     studentId: loginUser.studentId,
                     submittedAnswer: userAnswer,
+                    level: level ? parseInt(level, 10) : null ,
                 }),
             });
 

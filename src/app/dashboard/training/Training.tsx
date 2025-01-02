@@ -9,6 +9,7 @@ import { GoPencil } from "react-icons/go";
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
 
+// Cardを動的インポートしてSSRを無効化
 const Card = dynamic(() => import('@nextui-org/react').then((mod) => mod.Card), { ssr: false });
 
 export const Training = () => {
@@ -16,21 +17,26 @@ export const Training = () => {
     const [level, setLevel] = useState<number | null>(null);
     const [IncorrectLevel, IncorrectsetLevel] = useState<number | null>(null);
 
-    // 仕分けページへプッシュ
+    // 問題を解くページに移動
     const PushQuestionPage = () => {
         if (level !== null) {
             router.push(`/dashboard/training/QuestionPage?level=${level}`);
         } else {
-            toast.error("レベルを選択してください");
+            // クライアントサイド専用の処理を保証
+            if (typeof window !== 'undefined') {
+                toast.error("レベルを選択してください");
+            }
         }
     };
 
-    // ドリルページにプッシュ
+    // 復習するページに移動
     const PushIncorrectQuestionPage = () => {
-        if (level !== null) {
+        if (IncorrectLevel !== null) {
             router.push(`/dashboard/training/IncorrectQuestionPage?level=${IncorrectLevel}`);
         } else {
-            toast.error("レベルを選択してください");
+            if (typeof window !== 'undefined') {
+                toast.error("レベルを選択してください");
+            }
         }
     };
 

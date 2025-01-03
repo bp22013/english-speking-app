@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
         // 現在時刻に6時間を加算
         const updatedAt = new Date();
-        updatedAt.setHours(updatedAt.getHours() + 6);
+        updatedAt.setHours(updatedAt.getHours() + 9);
 
         // 関連データの更新 (例: assignedQuestion テーブルで該当する質問を関連付けるデータのフラグをリセット)
         await prisma.assignedQuestion.updateMany({

@@ -12,10 +12,9 @@ const DashBoard: NextPage = () => {
 
     const loginuser = StudentUseAuth();
 
-    const formattedDate = 
-        (loginuser.updateAt_year && loginuser.updateAt_month && loginuser.updateAt_day)
-        ? `　${loginuser.updateAt_year} / ${loginuser.updateAt_month} / ${loginuser.updateAt_day}`
-        : "";
+    const getFormattedDate = () => {
+        return `${loginuser.updateAt}`
+    }
 
     return (
         <>
@@ -54,7 +53,7 @@ const DashBoard: NextPage = () => {
                         <Card radius="sm" className="w-1/2">
                             <CardBody>
                                 <div className='flex my-auto ml-2'>
-                                    <p><strong>前回の学習日 : {formattedDate}</strong></p>
+                                    <p><strong>前回の学習日 : {getFormattedDate()}</strong></p>
                                 </div>
                             </CardBody>
                         </Card>

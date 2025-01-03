@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { speak } from "@/lib/WebSpeechApi";
 import { TrainingPageNavbar } from "@/app/components/Navbar/TrainingPageNavbar";
 import { StudentUseAuth } from "@/hooks/useAuth/StudentUseAuth";
+import { useSearchParams } from "next/navigation";
 
 interface Question {
     id: number;
@@ -28,8 +29,10 @@ const SolveIncorrectQuestionPage = () => {
     const [showNextButton, setShowNextButton] = useState(false);
     const [feedback, setFeedback] = useState<{ message: string; color: string } | null>(null);
     const [isAllQuestionsCompleted, setIsAllQuestionsCompleted] = useState(false);
+    const searchParams = useSearchParams();
     const router = useRouter();
     const loginUser = StudentUseAuth();
+    const level = searchParams.get('level');
 
     const fetchQuestions = async () => {
         try {
@@ -37,7 +40,7 @@ const SolveIncorrectQuestionPage = () => {
             const res = await fetch("/api/training/GetQuestion/getIncorrect", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ studentId: loginUser.studentId }),
+                body: JSON.stringify({ studentId: loginUser.studentId, level: level ? parseInt(level, 10) : null }),
             });
 
             if (!res.ok) throw new Error("問題の取得に失敗しました");

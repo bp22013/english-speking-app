@@ -19,7 +19,7 @@ const shuffleArray = <T>(array: T[]): T[] => {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { studentId } = body;
+        const { studentId, level } = body;
 
         // 学生情報を取得
         const student = await prisma.student.findUnique({
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
         // 学生IDを取得
         const currentUserId = student.id;
 
-        // 未回答または不正解の問題を取得
+        // 指定されたレベルの未回答または不正解の問題を取得
         const incorrectQuestions = await prisma.incorrectAssignedQuestion.findMany({
             where: {
                 studentId: currentUserId,
@@ -42,6 +42,9 @@ export async function POST(request: Request) {
                     { isAnswered: false },
                     { isCorrect: false },
                 ],
+                question: {
+                    level: level,
+                },
             },
             include: {
                 question: true,

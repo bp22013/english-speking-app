@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
 import { PrismaClient } from '@prisma/client';
 import { add } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
 import bcrypt from 'bcrypt';
 import { cookies } from 'next/headers';
 
@@ -35,17 +34,22 @@ export async function POST(request: NextRequest) {
 
         // 日本時間の現在時刻を取得しUTCに変換
         const now = new Date();
-        const japanTime = add(toZonedTime(now, 'Asia/Tokyo'), { hours: 9 });
+        now.setHours(now.getHours() + 9);
 
-        const update_time = student.updatedAt || new Date();
+        const updateAt = await prisma.student.findUnique({
+            where: { studentId: data.studentId },
+            select: { updatedAt: true }
+        });
+
+        const formattedUpdatedAt = updateAt?.updatedAt
+            ? `${updateAt.updatedAt.getFullYear()} / ${String(updateAt.updatedAt.getMonth() + 1).padStart(2, '0')} / ${String(updateAt.updatedAt.getDate() - 1).padStart(2, '0')}`
+            : null;
 
         const payload = {
             Id: student.id,
             studentId: student.studentId,
             username: student.name,
-            updateAt_year: update_time.getFullYear(),
-            updateAt_month: update_time.getMonth() + 1,
-            updateAt_day: update_time.getDate(),
+            updateAt: formattedUpdatedAt, 
         };
 
         const token = await new SignJWT(payload)
@@ -59,7 +63,7 @@ export async function POST(request: NextRequest) {
                 studentId: data.studentId
             },
             data: {
-                updatedAt: new Date(japanTime)
+                updatedAt: new Date(now)
             }
         });
 
@@ -82,7 +86,7 @@ export async function POST(request: NextRequest) {
         (await cookie).set("studenttoken", token);
 
         // 新しいセッション情報をStudentAccountに登録
-        const expirationDate = add(japanTime, { days: 1 });
+        const expirationDate = add(now, { days: 1 });
         await prisma.studentAccount.create({
             data: {
                 studentId: student.id,

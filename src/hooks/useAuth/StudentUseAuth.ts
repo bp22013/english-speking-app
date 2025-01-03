@@ -12,9 +12,7 @@ export const StudentUseAuth = () => {
         studentId: "",
         exp: 0,
         username: "",
-        updateAt_year: "",
-        updateAt_month: "",
-        updateAt_day: "",
+        updateAt: "",
     });
 
     const router = useRouter();

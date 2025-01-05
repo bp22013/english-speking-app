@@ -29,7 +29,7 @@ const ResetPassword = () => {
             // 独自のAPIエンドポイントでパスワード更新
             await axios.post('/api/auth/resetPassword', { token, password });
             toast.success('パスワードをリセットしました');
-        } catch (error) {
+        } catch {
             toast.error('エラーが発生しました。もう一度やり直してください');
         } finally {
             setIsLoading(false);

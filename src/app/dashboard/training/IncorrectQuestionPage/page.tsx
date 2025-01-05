@@ -166,7 +166,7 @@ const SolveIncorrectQuestionPage = () => {
     const currentQuestion = questions[currentQuestionIndex];
 
     return (
-        <div className="bg-blue-100 min-h-screen flex flex-col">
+        <div className="bg-blue-100 min-h-screen flex flex-col" onKeyDown={handleKeyDown} tabIndex={0}>
             <TrainingPageNavbar />
             <div className="flex flex-col items-center justify-center p-6">
                 <Card className="shadow-md p-6 max-w-xl w-full">

@@ -122,7 +122,7 @@ export const StudentLoginModal: React.FC<StudentModalProps> = (props) => {
                             <div className="flex py-2 px-1 justify-between">
                                 <Spacer className="px-14" />
                                 <Link color="primary" href="#" size="sm">
-                                    Forgot password?
+                                    パスワードを忘れた場合はこちら
                                 </Link>
                             </div>
                         </ModalBody>

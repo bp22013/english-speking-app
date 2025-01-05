@@ -102,6 +102,7 @@ const ManageQuestionsPage = () => {
                     const data = await res.json();
         
                     if (res.ok) {
+                        fetchQuestions();
                         resolve("問題が追加されました！");
                     } else {
                         reject(data.error || "問題の追加に失敗しました。");
@@ -205,6 +206,14 @@ const ManageQuestionsPage = () => {
         setEditingQuestionId(question.id);
         setNewText(question.text);
         setNewCorrectAnswer(question.correctAnswer);
+        setNewLevel(question.level);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingQuestionId(null);
+        setNewText("");
+        setNewCorrectAnswer("");
+        setNewLevel(null);
     };
 
     const selectProps = [
@@ -235,7 +244,6 @@ const ManageQuestionsPage = () => {
                                 startContent={<PiMagnifyingGlassDuotone />}
                                 onChange={handleSearchChange}
                                 color="primary"
-                                className=""
                             />
                             <Select
                                 value={sortOption}
@@ -270,47 +278,54 @@ const ManageQuestionsPage = () => {
                                     <TableBody emptyContent="問題がありません">
                                         {questions.map((item) => (
                                             <TableRow key={item.id}>
-                                                <TableCell>
-                                                    {editingQuestionId === item.id ? (
-                                                        <Input value={newText} onChange={(e) => setNewText(e.target.value)} />
-                                                    ) : (
-                                                        item.text
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {editingQuestionId === item.id ? (
-                                                        <Input value={newCorrectAnswer} onChange={(e) => setNewCorrectAnswer(e.target.value)} />
-                                                    ) : (
-                                                        item.correctAnswer
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {editingQuestionId === item.id ? (
-                                                        <Input
-                                                            value={newLevel !== null ? newLevel.toString() : ""}
-                                                            onChange={(e) => setNewLevel(e.target.value ? parseInt(e.target.value, 10) : null)}
-                                                        />
-                                                    ) : (
-                                                        item.level
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>{item.adminName}</TableCell>
-                                                <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
-                                                <TableCell className="flex">
-                                                    {editingQuestionId === item.id ? (
+                                            <TableCell>
+                                                {editingQuestionId === item.id ? (
+                                                    <Input value={newText} onChange={(e) => setNewText(e.target.value)} />
+                                                ) : (
+                                                    item.text
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {editingQuestionId === item.id ? (
+                                                    <Input value={newCorrectAnswer} onChange={(e) => setNewCorrectAnswer(e.target.value)} />
+                                                ) : (
+                                                    item.correctAnswer
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {editingQuestionId === item.id ? (
+                                                    <Input
+                                                        value={newLevel !== null ? newLevel.toString() : ""}
+                                                        onChange={(e) => setNewLevel(e.target.value ? parseInt(e.target.value, 10) : null)}
+                                                    />
+                                                ) : (
+                                                    item.level
+                                                )}
+                                            </TableCell>
+                                            <TableCell>{item.adminName}</TableCell>
+                                            <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
+                                            <TableCell>
+                                                {editingQuestionId === item.id ? (
+                                                    <div className="flex gap-2">
                                                         <Button size="sm" color="success" isDisabled={isUpdating} onClick={() => handleUpdateQuestion(item.id)}>
                                                             {isUpdating ? "更新中..." : "保存"}
                                                         </Button>
-                                                    ) : (
+                                                        <Button size="sm" color="primary" variant="flat" isDisabled={isUpdating} onClick={handleCancelEdit}>
+                                                            キャンセル
+                                                        </Button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex gap-2">
                                                         <Button size="sm" className="bg-[#ba55d3] text-white" onClick={() => handleUpdateClick(item)}>
                                                             更新
                                                         </Button>
-                                                    )}
-                                                    <Button size="sm" color="danger" className="ml-2" isDisabled={isDeleting} onClick={() => handleDeleteQuestion(item.id)}>
-                                                        {isDeleting ? "削除中..." : "削除"}
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
+                                                        <Button size="sm" color="danger" isDisabled={isDeleting} onClick={() => handleDeleteQuestion(item.id)}>
+                                                            {isDeleting ? "削除中..." : "削除"}
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>

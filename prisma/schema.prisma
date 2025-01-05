@@ -79,14 +79,14 @@ model Question {
 model Answer {
     id               String     @id @default(uuid())
     student          Student    @relation(fields: [studentId], references: [id])
-    studentId        String     // 回答者 (Student) のID
-    question         Question   @relation(fields: [questionId], references: [id])
-    questionId       String     // 回答した問題のID
-    isCorrect        Boolean?   // 正解: true, 不正解: false, 未回答: null
-    submittedAnswer  String?    // 提出した回答内容
-    answeredAt       DateTime?  // 回答日時
+    studentId        String
+    question         Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    questionId       String
+    isCorrect        Boolean?
+    submittedAnswer  String?
+    answeredAt       DateTime?
 
-    @@unique([studentId, questionId]) // 複合一意キー
+    @@unique([studentId, questionId])
 }
 
 model Notification {
@@ -106,26 +106,26 @@ model Notification {
 
 model AssignedQuestion {
     id          String    @id @default(uuid())
-    studentId   String    // 生徒ID
-    questionId  String    // 問題ID
-    isAnswered  Boolean   @default(false) // 回答済みかどうか
-    isCorrect   Boolean?  // 回答が正解だったかどうか
-    answeredAt  DateTime? // 回答日時
-    question    Question  @relation(fields: [questionId], references: [id])
+    studentId   String
+    questionId  String
+    isAnswered  Boolean   @default(false)
+    isCorrect   Boolean?
+    answeredAt  DateTime?
+    question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
     student     Student   @relation(fields: [studentId], references: [id])
 
-    @@unique([studentId, questionId]) // 生徒ごとにユニーク
+    @@unique([studentId, questionId])
 }
 
 model IncorrectAssignedQuestion {
     id          String    @id @default(uuid())
-    studentId   String    // 生徒ID
-    questionId  String    // 問題ID
-    isAnswered  Boolean   @default(false) // 回答済みかどうか
-    isCorrect   Boolean?  // 回答が正解だったかどうか
-    answeredAt  DateTime? // 回答日時
-    question    Question  @relation(fields: [questionId], references: [id])
+    studentId   String
+    questionId  String
+    isAnswered  Boolean   @default(false)
+    isCorrect   Boolean?
+    answeredAt  DateTime?
+    question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
     student     Student   @relation(fields: [studentId], references: [id])
 
-    @@unique([studentId, questionId]) // 生徒ごとにユニーク
+    @@unique([studentId, questionId])
 }

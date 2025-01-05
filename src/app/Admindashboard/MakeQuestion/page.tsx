@@ -87,9 +87,10 @@ const ManageQuestionsPage = () => {
         setIsAdding(true);
         if (!text || !correctAnswer || level === null) {
             toast.error("問題文、正解、レベルを入力してください。");
+            setIsAdding(false); // フォームを戻す
             return;
         }
-
+    
         toast.promise(
             new Promise(async (resolve, reject) => {
                 try {
@@ -98,11 +99,15 @@ const ManageQuestionsPage = () => {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ text, correctAnswer, level, email: admin.email }),
                     });
-        
+    
                     const data = await res.json();
-        
+    
                     if (res.ok) {
-                        fetchQuestions();
+                        fetchQuestions(); // 問題リストを更新
+                        // 入力フォームをリセット
+                        setText("");
+                        setCorrectAnswer("");
+                        setLevel(null);
                         resolve("問題が追加されました！");
                     } else {
                         reject(data.error || "問題の追加に失敗しました。");
@@ -184,8 +189,9 @@ const ManageQuestionsPage = () => {
                     } else {
                         reject(data.error || "問題の削除に失敗しました。");
                     }
-                } catch {
-                    reject("問題の削除に失敗しました。");
+                } catch (error) {
+                    console.log(error);
+                    reject("エラーが発生しました");
                 } finally {
                     setIsDeleting(false);
                 }

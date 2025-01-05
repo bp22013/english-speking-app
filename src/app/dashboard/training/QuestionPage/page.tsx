@@ -47,7 +47,7 @@ const SolveQuestionPage = () => {
 
                 const data = await res.json();
 
-                if (!res.ok){
+                if (!res.ok) {
                     toast.error("問題の取得に失敗しました");
                 }
 
@@ -60,7 +60,7 @@ const SolveQuestionPage = () => {
         };
 
         if (loginUser.studentId) fetchQuestions();
-    }, [loginUser.studentId]);
+    }, [level, loginUser.studentId]);
 
     const handleSubmit = async () => {
         try {
@@ -122,6 +122,17 @@ const SolveQuestionPage = () => {
         }
     };
 
+    //Enterを押しても採点されるようにする
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            if (showNextButton) {
+                handleNextQuestion();
+            } else if (!isSubmitting && !isAllQuestionsCompleted) {
+                handleSubmit();
+            }
+        }
+    };
+
     const handleBack = () => {
         router.push("/dashboard/training");
     };
@@ -161,7 +172,7 @@ const SolveQuestionPage = () => {
     const currentQuestion = questions[currentQuestionIndex];
 
     return (
-        <div className="bg-blue-100 min-h-screen flex flex-col">
+        <div className="bg-blue-100 min-h-screen flex flex-col" onKeyDown={handleKeyDown} tabIndex={0}>
             <TrainingPageNavbar />
             <div className="flex flex-col items-center justify-center p-6">
                 <Card className="shadow-md p-6 max-w-xl w-full">

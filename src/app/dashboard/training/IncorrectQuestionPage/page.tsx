@@ -113,6 +113,17 @@ const SolveIncorrectQuestionPage = () => {
         }
     };
 
+    //Enterを押しても採点されるようにする
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            if (showNextButton) {
+                handleNextQuestion();
+            } else if (!isSubmitting && !isAllQuestionsCompleted) {
+                handleSubmit();
+            }
+        }
+    };
+
     const handleBack = () => {
         router.push("/dashboard/training");
     };

@@ -2,9 +2,7 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { usePathname } from 'next/navigation';
 import { AdminUseAuth } from '@/hooks/useAuth/AdminUseAuth';
 import {
@@ -20,8 +18,6 @@ import {
     NavbarItem,
     NavbarMenu,
     NavbarMenuItem,
-    Badge,
-    Tooltip,
 } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 
@@ -34,46 +30,10 @@ export const AdminNavigationbar = () => {
     const loginuser = AdminUseAuth();
     const router = useRouter();
     const pathname: string = usePathname();
-    const [unreadCount, setUnreadCount] = useState(0);
 
     function isActive(link: string): boolean {
         return pathname === link;
     }
-
-    const PushNotification = () => {
-        router.push("/Admindashboard/ReadNotification");
-        router.refresh();
-    };
-
-    const fetchUnreadCount = async () => {
-        try {
-            const response = await fetch("/api/notification/GetNumberOfNewNotification/admin", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: loginuser.email,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setUnreadCount(data.unreadCount || 0);
-            } else {
-                console.error("Failed to fetch unread notifications:", data.error);
-            }
-        } catch (error) {
-            console.error("Error fetching unread notifications:", error);
-        }
-    };
-
-    useEffect(() => {
-        if (loginuser.email) {
-            fetchUnreadCount();
-        }
-    }, [loginuser.email]);
 
     const MenuItems: NavItemProps[] = [
         {
@@ -93,7 +53,7 @@ export const AdminNavigationbar = () => {
             Link: '/Admindashboard/Register',
         },
         {
-            Display: 'お知らせ',
+            Display: 'お知らせ作成',
             Link: '/Admindashboard/Notification',
         },
         {
@@ -116,12 +76,12 @@ export const AdminNavigationbar = () => {
 
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    resolve(); // 成功
+                    resolve();
                 } else {
-                    reject(data.message || "ログアウトに失敗しました"); // エラー
+                    reject(data.message || "ログアウトに失敗しました");
                 }
             } catch (error) {
-                reject("サーバーエラーが発生しました: " + error); // サーバーエラー
+                reject("サーバーエラーが発生しました: " + error);
             }
         });
 
@@ -171,7 +131,7 @@ export const AdminNavigationbar = () => {
                         </NavbarBrand>
                     </NavbarContent>
 
-                    <NavbarContent className="hidden sm:flex justify-center w-full flex-grow ml-48 mr-auto">
+                    <NavbarContent className="hidden sm:flex justify-center w-full flex-grow ml-44 mr-auto">
                         <div className="flex space-x-6">
                             {MenuItems.map((item: NavItemProps, index: number) => (
                                 <NavbarItem key={index} isActive={isActive(item.Link)}>
@@ -183,37 +143,7 @@ export const AdminNavigationbar = () => {
                         </div>
                     </NavbarContent>
 
-                    <NavbarContent className="ml-auto flex ml-48 mr-auto">
-                        <div className="relative">
-                            {unreadCount > 0 ? (
-                                <Badge content={unreadCount} size='md' color='danger'>
-                                    <Tooltip 
-                                        content={unreadCount + "件の新規通知があります"} 
-                                        placement='bottom-end' 
-                                        classNames={{
-                                            base: [
-                                                "before:bg-neutral-400 dark:before:bg-white",
-                                            ],
-                                            content: ["py-2 px-4 shadow-xl", "text-black bg-[#ffa500] from-white to-neutral-400"],
-                                        }}
-                                    >
-                                        <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
-                                    </Tooltip>
-                                </Badge>
-                            ) : (
-                                <Tooltip 
-                                    content="新規通知はありません" 
-                                    placement='bottom-end' 
-                                    classNames={{
-                                        base: [
-                                            "before:bg-neutral-400 dark:before:bg-white",
-                                        ],
-                                        content: ["py-2 px-4 shadow-xl", "text-black bg-gradient-to-br from-white to-neutral-400"],
-                                    }}>
-                                    <HiOutlineSpeakerphone size={28} style={{ cursor: 'pointer' }} onClick={PushNotification} />
-                                </Tooltip>
-                            )}
-                        </div>
+                    <NavbarContent className="ml-auto flex ml-44 mr-auto">
                         <Dropdown>
                             <DropdownTrigger>
                                 <a className="rounded-md px-3.5 py-0.5 m-1 overflow-hidden relative group cursor-pointer border-2 font-medium border-blue-400 text-blue-400 text-white">

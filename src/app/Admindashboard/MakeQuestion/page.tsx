@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import { AdminNavigationbar } from "@/app/components/Navbar/AdminNavbar";
 import { AdminUseAuth } from "@/hooks/useAuth/AdminUseAuth";
 import { PiMagnifyingGlassDuotone } from "react-icons/pi";
-import { QuestionDeleteConfirmationModal } from "@/app/components/Modal/QuestionDeleteConfirmModal";
+import { DeleteConfirmationModal } from "@/app/components/Modal/DeleteConfirmModal";
 
 interface Question {
     id: string;
@@ -402,11 +402,12 @@ const ManageQuestionsPage = () => {
                     </CardBody>
                 </Card>
             </div>
-            <QuestionDeleteConfirmationModal
+            <DeleteConfirmationModal
                 showFlag={isOpen}
                 ChangeFlag={onOpenChange}
                 onConfirm={confirmDelete}
                 message={selectedQuestionMessage}
+                role="問題"
             />
         </div>
     );

@@ -8,7 +8,7 @@ import { Pagination, Textarea, Spinner, Button, Table, TableHeader, TableBody, T
 import { Divider, Card, CardHeader, CardBody } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { AdminUseAuth } from "@/hooks/useAuth/AdminUseAuth";
-import { NotificationDeleteConfirmationModal } from "@/app/components/Modal/NotificationDeleteConfirmModal";
+import { DeleteConfirmationModal } from "@/app/components/Modal/DeleteConfirmModal";
 
 type Notification = {
     id: string;
@@ -327,11 +327,12 @@ export default function NotificationPage() {
                     </CardBody>
                 </Card>
             </div>
-            <NotificationDeleteConfirmationModal
+            <DeleteConfirmationModal
                 showFlag={isOpen}
                 ChangeFlag={onOpenChange}
                 onConfirm={confirmDelete}
                 message={selectedNotificationMessage}
+                role="通知"
             />
         </div>
     );

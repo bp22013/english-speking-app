@@ -3,16 +3,17 @@
 "use client";
 
 import React from "react";
-import { Modal, Button, ModalHeader, ModalBody, ModalFooter, ModalContent } from "@nextui-org/react";
+import { Modal, Button, ModalHeader, ModalBody, ModalFooter, ModalContent, Textarea } from "@nextui-org/react";
 
-type QuestionDeleteConfirmationModalProps = {
+type DeleteConfirmationModalProps = {
     showFlag: boolean;
     ChangeFlag: () => void;
     onConfirm: () => void;
     message: string;
+    role: string;
 };
 
-export const QuestionDeleteConfirmationModal: React.FC<QuestionDeleteConfirmationModalProps> = (props) => {
+export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (props) => {
     return (
         <Modal backdrop="blur" isOpen={props.showFlag} onOpenChange={props.ChangeFlag}>
             <ModalContent>
@@ -20,10 +21,17 @@ export const QuestionDeleteConfirmationModal: React.FC<QuestionDeleteConfirmatio
                     <>
                         <form onSubmit={props.onConfirm}>
                             <ModalHeader>
-                                <strong>この問題を削除しますか？</strong>
+                                <strong>この{props.role}を削除しますか？</strong>
                             </ModalHeader>
                             <ModalBody className="justify-center items-center">
-                                対象の問題 : {props.message}
+                                <Textarea 
+                                    isReadOnly
+                                    className="max-w-xs"
+                                    label={`対象の${props.role}`}
+                                    labelPlacement="outside"
+                                    defaultValue={props.message}
+                                    variant="bordered"
+                                />
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="primary" variant="ghost" onClick={onClose}>

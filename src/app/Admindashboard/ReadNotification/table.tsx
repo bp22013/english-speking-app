@@ -3,7 +3,7 @@
 'use client';
 
 import { useState } from "react";
-import { Table, Button, TableCell, TableBody, TableRow, TableColumn, TableHeader, Chip } from "@nextui-org/react";
+import { Table, Button, TableCell, TableBody, TableRow, TableColumn, TableHeader } from "@nextui-org/react";
 
 type Notification = {
     id: string;
@@ -50,11 +50,6 @@ export default function NotificationTable({
                     <TableRow key={notification.id}>
                         <TableCell>{new Date(notification.createdAt).toLocaleString()}</TableCell>
                         <TableCell>{notification.message}</TableCell>
-                        <TableCell>
-                            <Chip variant="flat" color={notification.isRead ? "success" : "warning"}>
-                                {notification.isRead ? "既読" : "未読"}
-                            </Chip>
-                        </TableCell>
                         <TableCell>
                             {!notification.isRead && (
                                 <Button

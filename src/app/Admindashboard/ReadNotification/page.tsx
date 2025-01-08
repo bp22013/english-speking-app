@@ -50,24 +50,6 @@ export default function ReadNotificationPage() {
         }
     };
 
-    const markAsRead = async (notificationId: string) => {
-        try {
-            const response = await fetch("/api/notification/MarkNotification/admin", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ notificationId, email: loginuser.email }),
-            });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error);
-
-            toast.success(data.message);
-            fetchNotifications(currentPage);
-        } catch {
-            toast.error("不明なエラーが発生しました");
-        }
-    };
-
     const updateNotification = async (notificationId: string, updatedMessage: string) => {
         try {
             const response = await fetch("/api/notification/UpdateNotification", {
@@ -118,14 +100,15 @@ export default function ReadNotificationPage() {
         updateNotification(notificationId, newMessage);
     };
 
+    const handleCancelClick = () => {
+        setEditingNotificationId(null);
+        setNewMessage("");
+    };
+
     const handleDeleteClick = (notificationId: string) => {
         if (window.confirm("この通知を削除しますか？")) {
             deleteNotification(notificationId);
         }
-    };
-
-    const handleMarkAsReadClick = (notificationId: string) => {
-        markAsRead(notificationId);
     };
 
     const handlePageChange = (page: number) => setCurrentPage(page);
@@ -153,7 +136,6 @@ export default function ReadNotificationPage() {
                             <TableHeader>
                                 <TableColumn>メッセージ</TableColumn>
                                 <TableColumn>作成日時</TableColumn>
-                                <TableColumn>既読</TableColumn>
                                 <TableColumn>操作</TableColumn>
                             </TableHeader>
                             <TableBody>
@@ -174,43 +156,42 @@ export default function ReadNotificationPage() {
                                             {new Date(notification.createdAt).toLocaleString()}
                                         </TableCell>
                                         <TableCell>
-                                            {notification.isRead ? "✔" : "未読"}
-                                        </TableCell>
-                                        <TableCell>
                                             <div className="flex gap-2">
                                                 {editingNotificationId === notification.id ? (
-                                                    <Button
-                                                        size="sm"
-                                                        color="success"
-                                                        onClick={() => handleSaveClick(notification.id)}
-                                                    >
-                                                        保存
-                                                    </Button>
+                                                    <div className="flex gap-4">
+                                                        <Button
+                                                            size="sm"
+                                                            color="success"
+                                                            onClick={() => handleSaveClick(notification.id)}
+                                                        >
+                                                            更新
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            color="warning"
+                                                            onClick={handleCancelClick}
+                                                        >
+                                                            キャンセル
+                                                        </Button>
+                                                    </div>
                                                 ) : (
-                                                    <Button
-                                                        size="sm"
-                                                        color="secondary"
-                                                        onClick={() => handleUpdateClick(notification)}
-                                                    >
-                                                        更新
-                                                    </Button>
+                                                    <div className="flex gap-4">
+                                                        <Button
+                                                            size="sm"
+                                                            color="secondary"
+                                                            onClick={() => handleUpdateClick(notification)}
+                                                        >
+                                                            編集
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            color="danger"
+                                                            onClick={() => handleDeleteClick(notification.id)}
+                                                        >
+                                                            削除
+                                                        </Button>
+                                                    </div>
                                                 )}
-                                                {!notification.isRead && (
-                                                    <Button
-                                                        size="sm"
-                                                        color="primary"
-                                                        onClick={() => handleMarkAsReadClick(notification.id)}
-                                                    >
-                                                        既読にする
-                                                    </Button>
-                                                )}
-                                                <Button
-                                                    size="sm"
-                                                    color="danger"
-                                                    onClick={() => handleDeleteClick(notification.id)}
-                                                >
-                                                    削除
-                                                </Button>
                                             </div>
                                         </TableCell>
                                     </TableRow>

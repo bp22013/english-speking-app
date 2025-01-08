@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         const notification = await prisma.notification.findUnique({
             where: { 
                 id: notificationId,
-                adminId: admin.id  // 管理者自身が作成した通知のみ削除可能
+                adminId: admin.id,  // 管理者自身が作成した通知のみ削除可能
             },
         });
 
@@ -37,9 +37,16 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "通知が存在しないか、削除権限がありません" }, { status: 404 });
         }
 
-        // 通知を物理削除
-        await prisma.notification.delete({
-            where: { id: notificationId },
+        // 通知のメッセージを取得
+        const notificationMessage = notification.message;
+
+        if (!notificationMessage) {
+            return NextResponse.json({ error: "削除対象の通知メッセージが見つかりません" }, { status: 404 });
+        }
+
+        // 同じメッセージを持つ通知を削除
+        await prisma.notification.deleteMany({
+            where: { message: notificationMessage },
         });
 
         return NextResponse.json({ message: "通知を削除しました" });

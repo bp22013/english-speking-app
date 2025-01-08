@@ -51,6 +51,7 @@ export async function POST(request: Request) {
 
         // 通知を取得
         const skip = (page - 1) * limit; // スキップする件数
+
         const notifications = await prisma.notification.findMany({
             where: {
                 adminId: adminRecord.id,
@@ -59,25 +60,35 @@ export async function POST(request: Request) {
                 createdAt: "desc",
             },
             skip: skip,
-            take: limit,
+            take: limit * 2, // 必要な件数より多めに取得
         });
 
+        // 重複を排除
+        const uniqueNotifications = Array.from(
+            new Map(notifications.map(item => [item.message, item])).values()
+        ).slice(0, limit); // メッセージをキーにして重複排除後、ページの件数分だけ取得
+
         // 通知の総数を取得
-        const totalNotifications = await prisma.notification.count({
+        const totalNotifications = await prisma.notification.findMany({
             where: {
                 adminId: adminRecord.id,
             },
         });
 
+        const uniqueTotalNotifications = Array.from(
+            new Map(totalNotifications.map(item => [item.message, item])).values()
+        ).length; // 重複を排除した件数を計算
+
         // ページ総数を計算
-        const totalPages = Math.ceil(totalNotifications / limit);
+        const totalPages = Math.ceil(uniqueTotalNotifications / limit);
 
         return NextResponse.json({
-            notifications,
+            notifications: uniqueNotifications,
             totalPages,
             currentPage: page,
         });
-    } catch {
+    } catch (error) {
+        console.error(error);
         return NextResponse.json(
             { error: "サーバーエラーが発生しました" },
             { status: 500 }

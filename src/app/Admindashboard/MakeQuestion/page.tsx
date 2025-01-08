@@ -5,12 +5,13 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Input, Card, CardHeader, CardBody, Divider, 
          TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner, Pagination, 
-         Select,
-         SelectItem} from "@nextui-org/react";
+         Select, SelectItem, useDisclosure, 
+        } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { AdminNavigationbar } from "@/app/components/Navbar/AdminNavbar";
 import { AdminUseAuth } from "@/hooks/useAuth/AdminUseAuth";
 import { PiMagnifyingGlassDuotone } from "react-icons/pi";
+import { QuestionDeleteConfirmationModal } from "@/app/components/Modal/QuestionDeleteConfirmModal";
 
 interface Question {
     id: string;
@@ -38,6 +39,8 @@ const ManageQuestionsPage = () => {
     const [newLevel, setNewLevel] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [sortOption, setSortOption] = useState<string>("createdAt-desc");
+    const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const admin = AdminUseAuth();
     const itemsPerPage = 10;
 
@@ -222,6 +225,22 @@ const ManageQuestionsPage = () => {
         setNewLevel(null);
     };
 
+    const handleDeleteClick = (id: string) => {
+        setSelectedQuestionId(id);
+        onOpen();
+    };
+
+    const confirmDelete = () => {
+        if (selectedQuestionId) {
+            handleDeleteQuestion(selectedQuestionId);
+        }
+        onOpenChange();
+    };
+
+    const selectedQuestionMessage = selectedQuestionId
+        ? questions.find((n) => n.id === selectedQuestionId)?.correctAnswer || "この問題"
+        : "";
+
     const selectProps = [
         { key: "createdAt-desc", label: "作成日: 新しい順" },
         { key: "createdAt-asc", label: "作成日: 古い順" },
@@ -325,8 +344,8 @@ const ManageQuestionsPage = () => {
                                                         <Button size="sm" className="bg-[#ba55d3] text-white" onClick={() => handleUpdateClick(item)}>
                                                             更新
                                                         </Button>
-                                                        <Button size="sm" color="danger" isDisabled={isDeleting} onClick={() => handleDeleteQuestion(item.id)}>
-                                                            {isDeleting ? "削除中..." : "削除"}
+                                                        <Button size="sm" color="danger" isDisabled={isDeleting} onClick={() => handleDeleteClick(item.id)}>
+                                                            削除
                                                         </Button>
                                                     </div>
                                                 )}
@@ -383,6 +402,12 @@ const ManageQuestionsPage = () => {
                     </CardBody>
                 </Card>
             </div>
+            <QuestionDeleteConfirmationModal
+                showFlag={isOpen}
+                ChangeFlag={onOpenChange}
+                onConfirm={confirmDelete}
+                message={selectedQuestionMessage}
+            />
         </div>
     );
 };

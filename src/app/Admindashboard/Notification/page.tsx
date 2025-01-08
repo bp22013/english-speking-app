@@ -8,7 +8,7 @@ import { Pagination, Textarea, Spinner, Button, Table, TableHeader, TableBody, T
 import { Divider, Card, CardHeader, CardBody } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { AdminUseAuth } from "@/hooks/useAuth/AdminUseAuth";
-import { DeleteConfirmationModal } from "@/app/components/Modal/DeleteConfirmModal";
+import { NotificationDeleteConfirmationModal } from "@/app/components/Modal/NotificationDeleteConfirmModal";
 
 type Notification = {
     id: string;
@@ -33,38 +33,50 @@ export default function NotificationPage() {
     const itemsPerPage = 10;
     const loginuser = AdminUseAuth();
 
+    // 通知を作成する関数
     const createNotification = async () => {
-        if (!message.trim()) {
-            toast.error("通知メッセージを入力してください。");
-            return;
-        }
+        setIsLoading(true);
 
-        await toast.promise(
-            fetch("/api/notification/MakeNotification", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ message, email: loginuser.email }),
-            })
-                .then(async (response) => {
+        toast.promise(
+            new Promise(async (resolve, reject) => {
+                if (!message.trim()) {
+                    reject("通知メッセージを入力してください。");
+                    return;
+                }
+
+                try {
+                    const response = await fetch("/api/notification/MakeNotification", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ message, email: loginuser.email }),
+                    });
+
+                    const data = await response.json();
                     if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.error || "通知の送信に失敗しました。");
+                        reject(data.error);
                     }
+
+                    resolve("通知が正常に送信されました！");
                     setMessage("");
-                })
-                .catch((error) => {
-                    throw new Error(error.message || "エラーが発生しました。");
-                }),
+                    fetchNotifications(currentPage);
+                } catch {
+                    reject("通知の送信に失敗しました。");
+                } finally {
+                    setIsLoading(false);
+                }
+            }),
             {
                 loading: "通知を送信中です...",
-                success: "通知が正常に送信されました。",
-                error: (err) => err.message || "通知の送信に失敗しました。",
+                success: "通知が正常に送信されました！",
+                error: (message) => message,
             }
         );
     };
 
+
+    //通知を取得する関数
     const fetchNotifications = async (page: number) => {
         setIsLoading(true);
         try {
@@ -90,53 +102,78 @@ export default function NotificationPage() {
         }
     };
 
+    //通知を更新する関数
     const updateNotification = async (notificationId: string, updatedMessage: string) => {
         setIsUpdating(true);
 
-        if (!updatedMessage.trim()) {
-            toast.error("メッセージを入力してください。");
-            return;
-        }
-        try {
-            const response = await fetch("/api/notification/UpdateNotification", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ notificationId, message: updatedMessage, email: loginuser.email }),
-            });
+        toast.promise(
+            new Promise(async (resolve, reject) => {
+                if (!updatedMessage.trim()) {
+                    reject("メッセージを入力してください。");
+                    return;
+                }
 
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error);
+                try {
+                    const response = await fetch("/api/notification/UpdateNotification", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ notificationId, message: updatedMessage, email: loginuser.email }),
+                    });
 
-            toast.success(data.message);
-            setEditingNotificationId(null);
-            fetchNotifications(currentPage);
-        } catch {
-            toast.error("通知の更新に失敗しました。");
-        } finally {
-            setIsUpdating(false);
-        }
+                    const data = await response.json();
+                    if (!response.ok) {
+                        reject(data.error);
+                    };
+
+                    resolve(data.message);
+                    setEditingNotificationId(null);
+                    fetchNotifications(currentPage);
+                } catch {
+                    reject("通知の更新に失敗しました。");
+                } finally {
+                    setIsUpdating(false);
+                }
+            }),
+            {
+                loading: "問題を更新中...",
+                success: "問題が更新されました！",
+                error: (message) => message,
+            }
+        );
     };
 
+    //通知を削除する関数
     const deleteNotification = async (notificationId: string) => {
         setIsDeleting(true);
 
-        try {
-            const response = await fetch("/api/notification/DeleteNotification", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ notificationId, email: loginuser.email }),
-            });
+        toast.promise(
+            new Promise(async (resolve, reject) => {
+                try {
+                    const response = await fetch("/api/notification/DeleteNotification", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ notificationId, email: loginuser.email }),
+                    });
 
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error);
+                    const data = await response.json();
+                    if (!response.ok) {
+                        reject(data.error);
+                    };
 
-            toast.success(data.message);
-            fetchNotifications(currentPage);
-        } catch {
-            toast.error("通知の削除に失敗しました。");
-        } finally {
-            setIsDeleting(false);
-        }
+                    resolve(data.message);
+                    fetchNotifications(currentPage);
+                } catch {
+                    reject("通知の削除に失敗しました。");
+                } finally {
+                    setIsDeleting(false);
+                }
+            }),
+            {
+                loading: "問題を削除中...",
+                success: "問題が削除されました！",
+                error: (message) => message,
+            }
+        );
     };
 
     const handleUpdateClick = (notification: Notification) => {
@@ -290,7 +327,7 @@ export default function NotificationPage() {
                     </CardBody>
                 </Card>
             </div>
-            <DeleteConfirmationModal
+            <NotificationDeleteConfirmationModal
                 showFlag={isOpen}
                 ChangeFlag={onOpenChange}
                 onConfirm={confirmDelete}

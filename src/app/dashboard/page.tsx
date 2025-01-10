@@ -14,7 +14,7 @@ const DashBoard: NextPage = () => {
     return (
         <div className="bg-blue-100 min-h-screen flex flex-col">
             <StudentNavigationbar />
-            <div className="flex flex-col items-center justify-center mt-10 space-y-6 w-full max-w-4xl mx-auto">
+            <div className="flex flex-col items-center justify-center my-10 space-y-6 w-full max-w-4xl mx-auto">
                 <Image
                     width={900}
                     height={250}

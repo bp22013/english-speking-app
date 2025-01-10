@@ -57,6 +57,13 @@ export async function POST(request: Request) {
                     questionId: questionId,
                 },
             });
+            await prisma.assignedQuestion.updateMany({
+                where: {
+                    studentId: currentUserId,
+                    questionId: questionId
+                },
+                data: { isCorrect: true },
+            })
             return NextResponse.json({ message: "正解です！" , flag: true , correctAnswer: correctAnswer});
         } else {
             // 不正解の場合、回答情報を更新

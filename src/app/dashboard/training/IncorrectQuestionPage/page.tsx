@@ -10,6 +10,7 @@ import { speak } from "@/lib/WebSpeechApi";
 import { TrainingPageNavbar } from "@/app/components/Navbar/TrainingPageNavbar";
 import { StudentUseAuth } from "@/hooks/useAuth/StudentUseAuth";
 import { useSearchParams } from "next/navigation";
+import { handleCanon } from "@/app/components/particle/happyCanon";
 
 interface Question {
     id: number;
@@ -81,6 +82,7 @@ const SolveIncorrectQuestionPage = () => {
 
             if (data.flag) {
                 setFeedback({ message: "正解です！", color: "text-green-500" });
+                handleCanon();
             } else {
                 setFeedback({
                     message: `不正解です。 正しい答え: ${data.correctAnswer}`,

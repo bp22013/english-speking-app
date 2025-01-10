@@ -10,6 +10,7 @@ import { speak } from "@/lib/WebSpeechApi";
 import { TrainingPageNavbar } from "@/app/components/Navbar/TrainingPageNavbar";
 import { StudentUseAuth } from "@/hooks/useAuth/StudentUseAuth";
 import { useSearchParams } from "next/navigation";
+import { handleCanon } from '@/app/components/particle/happyCanon';
 
 interface Question {
     id: number;
@@ -87,6 +88,7 @@ const SolveQuestionPage = () => {
 
             // 判定結果に応じたフィードバックを設定
             if (data.flag) {
+                handleCanon();
                 setFeedback({ message: "正解です！", color: "text-green-500" });
             } else {
                 setFeedback({

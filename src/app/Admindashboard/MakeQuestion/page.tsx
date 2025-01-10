@@ -3,6 +3,7 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
+import { NextPage } from "next";
 import { Table, Button, Input, Card, CardHeader, CardBody, Divider, 
          TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner, Pagination, 
          Select, SelectItem, useDisclosure, 
@@ -22,7 +23,7 @@ interface Question {
     adminName: string;
 }
 
-const ManageQuestionsPage = () => {
+const ManageQuestionsPage: NextPage = () => {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [allQuestions, setAllQuestions] = useState<Question[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -258,7 +259,7 @@ const ManageQuestionsPage = () => {
     return (
         <div className="bg-blue-100 min-h-screen flex flex-col">
             <AdminNavigationbar />
-            <div className="flex flex-wrap gap-6 justify-center items-start mt-10 mx-auto max-w-7xl">
+            <div className="flex flex-wrap gap-6 justify-center items-start my-10 mx-auto max-w-7xl">
                 <Card className="shadow-md p-6 flex-1 min-w-[850px]">
                     <CardHeader className="flex justify-between items-center">
                         <h1 className="text-2xl font-bold text-gray-800">問題リスト</h1>

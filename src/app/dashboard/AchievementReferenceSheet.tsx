@@ -1,5 +1,7 @@
 /* 成績グラフ表示用コンポーネント */
 
+'use client';
+
 import { useEffect, useState } from 'react';
 import { BarChart } from '@mui/x-charts';
 import { Spinner } from '@nextui-org/react';
@@ -17,12 +19,13 @@ interface StudentIdProps {
 
 export const AssignedQuestionsStats: React.FC<StudentIdProps> = (props) => {
     const [stats, setStats] = useState<LevelStats[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setisLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // グラフのデータを取得する関数
     useEffect(() => {
         const fetchStats = async () => {
-            if (!props.studentId) return; // props.studentIdが処理中で空の時にfetchしてしまうのを防止する
+            if (!props.studentId) return;
 
             try {
                 const response = await fetch('/api/achievement/student', {
@@ -43,14 +46,15 @@ export const AssignedQuestionsStats: React.FC<StudentIdProps> = (props) => {
             } catch (error) {
                 setError(error instanceof Error ? error.message : 'データの取得に失敗しました');
             } finally {
-                setLoading(false);
+                setisLoading(false);
             }
         };
 
         fetchStats();
     }, [props.studentId]);
 
-    if (loading) {
+    // ローディング画面の実装
+    if (isLoading) {
         return (
             <div className="flex justify-center items-center h-64">
                 <Spinner label="トレーニングの成績を取得中..." color="success" />
@@ -58,11 +62,12 @@ export const AssignedQuestionsStats: React.FC<StudentIdProps> = (props) => {
         );
     }
 
+    // エラー画面の実装
     if (error) {
         return <p className="text-center text-red-500">{error}</p>;
     }
 
-    // 合計値の計算
+    // 合計値の計算をする関数
     const totals = stats.reduce(
         (acc, curr) => ({
             unanswered: acc.unanswered + curr.unanswered,
@@ -72,10 +77,15 @@ export const AssignedQuestionsStats: React.FC<StudentIdProps> = (props) => {
         { unanswered: 0, correct: 0, incorrect: 0 }
     );
 
+    // 値に「問」を付ける関数
+    const valueFormatter = (value: number | null) =>{
+        return `${value}問`;
+    }
+
     return (
-        <>
-            <div className="mb-20">
-                <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="space-y-8">
+            <div className="mb-10">
+                <div className="grid grid-cols-3 gap-2">
                     <div className="text-center">
                         <p className="text-2xl font-bold text-blue-500">{totals.unanswered}</p>
                         <p className="text-sm text-gray-600">未回答</p>
@@ -91,23 +101,26 @@ export const AssignedQuestionsStats: React.FC<StudentIdProps> = (props) => {
                 </div>
             </div>
 
-            <div className="h-90">
+            <div className="gap-4">
                 <BarChart
                     series={[
                         {
                             data: stats.map((s) => s.unanswered),
                             label: '未回答',
                             color: '#3B82F6',
+                            valueFormatter,
                         },
                         {
                             data: stats.map((s) => s.correct),
                             label: '正解',
                             color: '#22C55E',
+                            valueFormatter,
                         },
                         {
                             data: stats.map((s) => s.incorrect),
                             label: '不正解',
                             color: '#EF4444',
+                            valueFormatter,
                         },
                     ]}
                     xAxis={[
@@ -116,11 +129,11 @@ export const AssignedQuestionsStats: React.FC<StudentIdProps> = (props) => {
                             scaleType: 'band',
                         },
                     ]}
-                    height={390}
-                    margin={{ top: 10, right: 10, bottom: 50, left: 50 }}
+                    height={400}
+                    margin={{ top: 70, right: 10, bottom: 40, left: 70 }}
                 />
             </div>
-        </>
+        </div>
     );
 };
 

@@ -25,7 +25,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // student.idを使用して課題を取得
+        // 課題のレベルを取得
         const assignedQuestions = await prisma.assignedQuestion.findMany({
             where: {
                 studentId: student.id,
@@ -71,6 +71,6 @@ export async function POST(request: Request) {
             { status: 500 }
         );
     } finally {
-        await prisma.$disconnect();
+        await prisma.$disconnect(); // データベースの切断
     }
 }

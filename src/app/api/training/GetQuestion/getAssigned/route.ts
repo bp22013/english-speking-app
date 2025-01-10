@@ -34,6 +34,34 @@ export async function POST(request: Request) {
         // 学生IDを取得
         const currentUserId = student.id;
 
+        // 該当レベルの AssignedQuestion が全て回答済みかをチェック
+        const remainingQuestionsInLevel = await prisma.assignedQuestion.findMany({
+            where: {
+                studentId: currentUserId,
+                isAnswered: false,
+                question: {
+                    level: level, // レベルでフィルタリング
+                },
+            },
+        });
+
+        if (remainingQuestionsInLevel.length === 0) {
+            // 該当レベルの全ての問題が回答済みの場合、該当レベルの isAnswered と isCorrectをリセット
+            await prisma.assignedQuestion.updateMany({
+                where: {
+                    studentId: currentUserId,
+                    question: {
+                        level: level,
+                    },
+                },
+                data: { 
+                    isAnswered: false,
+                    isCorrect: null,
+                    answeredAt: null,
+                },
+            });
+        }
+
         const assignedQuestions = await prisma.assignedQuestion.findMany({
             where: {
                 studentId: currentUserId,

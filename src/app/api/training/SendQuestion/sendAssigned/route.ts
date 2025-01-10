@@ -72,6 +72,8 @@ export async function POST(request: NextRequest) {
             });
         }
 
+        const now = new Date(); //解答時刻を取得
+
         // 該当の AssignedQuestion を更新（isAnswered = true）
         await prisma.assignedQuestion.updateMany({
             where: {
@@ -80,6 +82,8 @@ export async function POST(request: NextRequest) {
             },
             data: {
                 isAnswered: true,
+                isCorrect: true,
+                answeredAt: now,
             },
         });
 
@@ -100,30 +104,15 @@ export async function POST(request: NextRequest) {
                     isCorrect: null,
                 },
             });
-        }
-
-        // 該当レベルの AssignedQuestion が全て回答済みかをチェック
-        const remainingQuestionsInLevel = await prisma.assignedQuestion.findMany({
-            where: {
-                studentId: currentUserId,
-                isAnswered: false,
-                question: {
-                    level: level, // レベルでフィルタリング
-                },
-            },
-        });
-
-        if (remainingQuestionsInLevel.length === 0) {
-            // 該当レベルの全ての問題が回答済みの場合、該当レベルの isAnswered をリセット
             await prisma.assignedQuestion.updateMany({
                 where: {
                     studentId: currentUserId,
-                    question: {
-                        level: level,
-                    },
+                    questionId: questionId,
                 },
-                data: { isAnswered: false },
-            });
+                data: {
+                    isCorrect: false,
+                }
+            })
         }
 
         return NextResponse.json({
@@ -132,9 +121,8 @@ export async function POST(request: NextRequest) {
             flag: isCorrect ? true : false
         });
     } catch (error) {
-        console.error("APIエラー:", error);
         return NextResponse.json(
-            { error: "サーバーエラーが発生しました。管理者にお問い合わせください。" },
+            { error: `サーバーエラーが発生しました。(${error})` },
             { status: 500 }
         );
     }

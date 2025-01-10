@@ -74,7 +74,7 @@ export const AssignedQuestionsStats: React.FC<StudentIdProps> = (props) => {
 
     return (
         <>
-            <div className="mb-6">
+            <div className="mb-20">
                 <div className="grid grid-cols-3 gap-4 mb-4">
                     <div className="text-center">
                         <p className="text-2xl font-bold text-blue-500">{totals.unanswered}</p>

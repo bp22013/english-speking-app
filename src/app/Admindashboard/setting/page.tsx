@@ -5,9 +5,15 @@
 import { NextPage } from "next";
 import { AdminNavigationbar } from "@/app/components/Navbar/AdminNavbar";
 import { Button, useDisclosure } from "@nextui-org/react";
+import { useRouter } from 'next/navigation'
 import { AdminPasswordCheckModal } from "@/app/components/Modal/AdminPasswordCheckModal";
 
 const SettingPage: NextPage = () => {
+
+    const ChangeEmailUrl = "/Admindashboard/setting/ChangeEmail";
+    const ChangePasswordUrl = "/Admindashboard/setting/ChangePassword"
+
+    const router = useRouter();
 
     const { //管理者用メールアドレス変更前確認モーダル開閉用状態変数
         isOpen: isEmailOpen,
@@ -21,8 +27,9 @@ const SettingPage: NextPage = () => {
         onOpenChange: onPasswordOpenChange,
     } = useDisclosure();
 
-    const ChangeEmailUrl = "/Admindashboard/setting/ChangeEmail";
-    const ChangePasswordUrl = "/Admindashboard/setting/ChangePassword"
+    const PushNameChange = () => {
+        router.push("/Admindashboard/setting/ChangeName");
+    }
 
     return (
         <>
@@ -35,6 +42,14 @@ const SettingPage: NextPage = () => {
                         </p>
                     </div>
                     <div className="mt-10 w-full px-4 flex flex-col space-y-6">
+                        <div className="w-full flex justify-center">
+                            <Button
+                                className="w-full max-w-xs bg-gradient-to-tr from-lime-400 to-green-600 text-white shadow-lg text-sm md:text-xl py-3 md:py-4"
+                                onClick={PushNameChange}
+                            >
+                                名前の変更はこちら
+                            </Button>
+                        </div>
                         <div className="w-full flex justify-center">
                             <Button
                                 className="w-full max-w-xs bg-gradient-to-tr from-lime-400 to-green-600 text-white shadow-lg text-sm md:text-xl py-3 md:py-4"

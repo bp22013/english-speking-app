@@ -54,11 +54,13 @@ export async function POST(request: NextRequest) {
             },
         });
 
+        const now = new Date(); //解答時刻を取得
+
         if (existingAnswer) {
             // 既存レコードがある場合は更新
             await prisma.answer.update({
                 where: { id: existingAnswer.id },
-                data: { submittedAnswer, isCorrect },
+                data: { submittedAnswer, isCorrect, answeredAt: now },
             });
         } else {
             // 既存レコードがない場合は新規作成
@@ -68,11 +70,10 @@ export async function POST(request: NextRequest) {
                     questionId,
                     submittedAnswer,
                     isCorrect,
+                    answeredAt: now,
                 },
             });
         }
-
-        const now = new Date(); //解答時刻を取得
 
         // 該当の AssignedQuestion を更新（isAnswered = true）
         await prisma.assignedQuestion.updateMany({

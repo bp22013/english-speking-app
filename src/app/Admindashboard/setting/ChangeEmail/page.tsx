@@ -74,7 +74,6 @@ const ChangeEmailPage: NextPage = () => {
             <AdminNavigationbar />
             <div className="flex justify-center items-center mt-20">
                 <Card className="max-w-md w-full shadow-lg">
-                    {/* Y軸方向の中央寄せを実現 */}
                     <CardHeader className="flex items-center justify-center h-16">
                         <div className="text-2xl font-bold mt-4">
                             <p>メールアドレス変更</p>

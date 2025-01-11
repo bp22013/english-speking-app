@@ -1,6 +1,6 @@
-/* 管理者用メールアドレス変更API */
+/* 管理者用名前変更API */
 
-'use server';
+"use server";
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
@@ -13,16 +13,7 @@ export async function POST(request: NextRequest) {
         const cookie = cookies();
         const requestData = await request.json(); // JSONの読み取りは一度だけ行う
 
-        const { newEmail, confirmEmail, oldEmail } = requestData; // リクエストデータを展開
-
-        // 入力のバリデーション
-        if (!newEmail || !confirmEmail) {
-            return NextResponse.json({ message: "すべてのフィールドを入力してください", success: false }, { status: 400 });
-        }
-
-        if (newEmail !== confirmEmail) {
-            return NextResponse.json({ message: "上と同じメールアドレスを入力してください", success: false }, { status: 400 });
-        }
+        const { newName, email } = requestData; // リクエストデータを展開
 
         const token = (await cookie).get("admintoken")?.value; // Cookieから管理者のトークンを取得
 
@@ -30,17 +21,17 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: "認証情報がありません", success: false }, { status: 401 });
         }
 
-        // データベースの管理者メールアドレスを更新
+        // データベースの管理者名を更新
         const updatedAdmin = await prisma.admin.update({
             where: {
-                email: oldEmail, // 以前のメールアドレスで管理者を検索
+                email: email,
             },
             data: {
-                email: newEmail, // 新しいメールアドレスに更新
+                name: newName,
             },
         });
 
-        return NextResponse.json({ message: "メールアドレスを更新しました", success: true, updatedAdmin });
+        return NextResponse.json({ message: "名前を更新しました", success: true, updatedAdmin });
     } catch (error) {
         return NextResponse.json({ message: `サーバーエラーが発生しました（${error}）`, success: false }, { status: 500 });
     } finally {

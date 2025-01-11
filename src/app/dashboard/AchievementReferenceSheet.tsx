@@ -25,7 +25,7 @@ export const AssignedQuestionsStats: React.FC<StudentIdProps> = (props) => {
     // グラフのデータを取得する関数
     useEffect(() => {
         const fetchStats = async () => {
-            if (!props.studentId) return;
+            if (!props.studentId) return; // props.studentIdが処理中で空の時にfetchしてしまうのを防止する
 
             try {
                 const response = await fetch('/api/achievement/student', {

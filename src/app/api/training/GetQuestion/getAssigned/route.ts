@@ -40,7 +40,7 @@ export async function POST(request: Request) {
                 studentId: currentUserId,
                 isAnswered: false,
                 question: {
-                    level: level, // レベルでフィルタリング
+                    level: level,
                 },
             },
         });

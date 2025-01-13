@@ -1,3 +1,5 @@
+/* 管理者登録フォームのバリデーションスキーマ */
+
 import { z } from "zod";
 
 export const inputs = z.object({

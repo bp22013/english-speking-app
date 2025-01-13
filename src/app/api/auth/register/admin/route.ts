@@ -3,13 +3,11 @@
 'use server';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/PrismaProvider';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcrypt';
 import { add } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
 

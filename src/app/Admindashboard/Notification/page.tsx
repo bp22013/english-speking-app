@@ -9,6 +9,7 @@ import { Divider, Card, CardHeader, CardBody } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { AdminUseAuth } from "@/hooks/useAuth/AdminUseAuth";
 import { DeleteConfirmationModal } from "@/app/components/Modal/DeleteConfirmModal";
+import { NextPage } from "next";
 
 type Notification = {
     id: string;
@@ -17,7 +18,7 @@ type Notification = {
     createdAt: string;
 };
 
-export default function NotificationPage() {
+const NotificationPage: NextPage = () => {
     const [message, setMessage] = useState("");
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -135,8 +136,8 @@ export default function NotificationPage() {
                 }
             }),
             {
-                loading: "問題を更新中...",
-                success: "問題が更新されました！",
+                loading: "通知を更新中...",
+                success: "通知が更新されました！",
                 error: (message) => message,
             }
         );
@@ -169,8 +170,8 @@ export default function NotificationPage() {
                 }
             }),
             {
-                loading: "問題を削除中...",
-                success: "問題が削除されました！",
+                loading: "通知を削除中...",
+                success: "通知が削除されました！",
                 error: (message) => message,
             }
         );
@@ -337,3 +338,5 @@ export default function NotificationPage() {
         </div>
     );
 }
+
+export default NotificationPage;

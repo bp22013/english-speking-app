@@ -14,11 +14,11 @@ model Student {
     hashedPassword            String
     createdAt                 DateTime                  @default(now())
     updatedAt                 DateTime?                 @updatedAt
-    accounts                  StudentAccount[]          // 学生アカウント
-    answers                   Answer[]                  // 生徒が回答した内容を保持
-    notifications             Notification[]            // 生徒が受け取る通知
-    assignedQuestions         AssignedQuestion[]        // 出題された問題を管理
-    incorrectAssignedQuestions IncorrectAssignedQuestion[] // 間違えた問題を管理
+    accounts                  StudentAccount[]          
+    answers                   Answer[]                  
+    notifications             Notification[]            
+    assignedQuestions         AssignedQuestion[]        
+    incorrectAssignedQuestions IncorrectAssignedQuestion[] 
 }
 
 model Admin {
@@ -28,9 +28,9 @@ model Admin {
     hashedPassword            String?
     createdAt                 DateTime                  @default(now())
     updatedAt                 DateTime?                 @updatedAt
-    accounts                  AdminAccount[]            // 管理者アカウント
-    questions                 Question[]                // 管理者が作成した問題を保持
-    notificationsSent         Notification[]            @relation("SentNotifications") // 管理者が送信した通知
+    accounts                  AdminAccount[]            
+    questions                 Question[]                
+    notificationsSent         Notification[]            @relation("SentNotifications")
 }
 
 model StudentAccount {
@@ -63,21 +63,21 @@ model AdminAccount {
 
 model Question {
     id                        String                    @id @default(uuid())
-    text                      String                   // 問題文
-    correctAnswer             String?                  // 正解を保持
+    text                      String                   
+    correctAnswer             String?                  
     createdBy                 Admin                    @relation(fields: [adminId], references: [id])
-    adminId                   String                   // 作成者 (Admin) のID
-    level                     Int                      // 問題の難易度やレベル
+    adminId                   String                   
+    level                     Int                      
     createdAt                 DateTime                 @default(now())
     updatedAt                 DateTime?                @updatedAt
-    answers                   Answer[]                 // この問題への回答を保持
-    assignedQuestions         AssignedQuestion[]       // 出題された問題を管理
-    incorrectAssignedQuestions IncorrectAssignedQuestion[] // 間違えた問題を管理
+    answers                   Answer[]                 
+    assignedQuestions         AssignedQuestion[]       
+    incorrectAssignedQuestions IncorrectAssignedQuestion[] 
 }
 
 model Answer {
     id               String     @id @default(uuid())
-    student          Student    @relation(fields: [studentId], references: [id])
+    student          Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
     studentId        String
     question         Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
     questionId       String
@@ -90,12 +90,12 @@ model Answer {
 
 model Notification {
     id               String    @id @default(uuid())
-    message          String    // 通知メッセージ
-    isRead           Boolean   @default(false) // 既読フラグ
+    message          String    
+    isRead           Boolean   @default(false)
     createdAt        DateTime  @default(now())
-    admin            Admin?    @relation("SentNotifications", fields: [adminId], references: [id]) // 通知を送信した管理者
+    admin            Admin?    @relation("SentNotifications", fields: [adminId], references: [id], onDelete: SetNull)
     adminId          String?
-    student          Student?  @relation(fields: [studentId], references: [id]) // 通知を受け取る生徒
+    student          Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
     studentId        String?
 }
 
@@ -107,7 +107,7 @@ model AssignedQuestion {
     isCorrect   Boolean?
     answeredAt  DateTime?
     question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    student     Student   @relation(fields: [studentId], references: [id])
+    student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
     @@unique([studentId, questionId])
 }
@@ -120,7 +120,7 @@ model IncorrectAssignedQuestion {
     isCorrect   Boolean?
     answeredAt  DateTime?
     question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    student     Student   @relation(fields: [studentId], references: [id])
+    student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
     @@unique([studentId, questionId])
 }

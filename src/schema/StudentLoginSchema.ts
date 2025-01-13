@@ -1,3 +1,5 @@
+/* 生徒用ログインフォームのバリデーションスキーマ */
+
 import { z } from "zod";
 
 export const inputs = z.object({

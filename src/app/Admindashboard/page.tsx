@@ -83,127 +83,129 @@ const Admindashboard: NextPage = () => {
         <>
             <div className="bg-blue-100 min-h-screen flex flex-col">
                 <AdminNavigationbar />
-                <main className="flex flex-col my-10 space-y-8 w-full max-w-5xl mx-auto">
-                    <div className='mx-auto my-3 text-4xl'>
-                        <h1><strong>管理コンソール</strong></h1>
-                    </div>
-                    <div className="flex w-full gap-10">
-                        <Card radius="sm" className="w-1/2" isPressable isDisabled={isLoading} onPress={PushMakeQuestion}>
-                            <CardHeader>
-                                <div className="text-left">
-                                    <h1 className="text-2xl">
-                                        <strong>問題作成</strong>
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        問題の作成と編集
-                                    </p>
-                                </div>
-                            </CardHeader>
-                            <CardBody>
-                                <div className="flex items-center space-x-4">
-                                    <BookOpen className="h-8 w-8 text-primary" />
-                                    <div>
-                                        <p className="text-2xl font-bold">{isLoading ? ("-") : (`${numberOfQuestions}問`)}</p>
-                                        <p className="text-sm text-[#696969] text-muted-foreground">総問題数</p>
+                {isLoading ? (<></>) : (
+                    <main className="flex flex-col my-10 space-y-8 w-full max-w-5xl mx-auto">
+                        <div className='mx-auto my-3 text-4xl'>
+                            <h1><strong>管理コンソール</strong></h1>
+                        </div>
+                        <div className="flex w-full gap-10">
+                            <Card radius="sm" className="w-1/2" isPressable onPress={PushMakeQuestion}>
+                                <CardHeader>
+                                    <div className="text-left">
+                                        <h1 className="text-2xl">
+                                            <strong>問題作成</strong>
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            問題の作成と編集
+                                        </p>
                                     </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-                        <Card radius="sm" className="w-1/2" isPressable isDisabled={isLoading} onPress={PushAchievementPage}>
-                            <CardHeader>
-                                <div className="text-left">
-                                    <h1 className="text-2xl">
-                                        <strong>生徒の成績</strong>
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        成績の閲覧
-                                    </p>
-                                </div>
-                            </CardHeader>
-                            <CardBody>
-                                <div className="flex items-center space-x-4">
-                                    <Pencil className="h-8 w-8 text-primary" />
-                                    <div>
-                                        <p className="text-2xl font-bold">{"-"}</p>
-                                        <p className="text-sm text-[#696969] text-muted-foreground">総生徒数</p>
+                                </CardHeader>
+                                <CardBody>
+                                    <div className="flex items-center space-x-4">
+                                        <BookOpen className="h-8 w-8 text-primary" />
+                                        <div>
+                                            <p className="text-2xl font-bold">{isLoading ? ("-") : (`${numberOfQuestions}問`)}</p>
+                                            <p className="text-sm text-[#696969] text-muted-foreground">総問題数</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-                    </div>
-                    <Spacer />
-                    <div className="flex w-full gap-10">
-                        <Card radius="sm" className="w-1/2" isPressable isDisabled={isLoading} onPress={PushRegisterPage}>
-                            <CardHeader>
-                                <div className="text-left">
-                                    <h1 className="text-2xl">
-                                        <strong>ユーザー登録</strong>
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        生徒の新規登録と管理
-                                    </p>
-                                </div>
-                            </CardHeader>
-                            <CardBody>
-                                <div className="flex items-center space-x-4">
-                                    <Users className="h-8 w-8 text-primary" />
-                                    <div>
-                                        <p className="text-2xl font-bold">{isLoading ? ("-") : (`${numberOfStudent}人`)}</p>
-                                        <p className="text-sm text-[#696969] text-muted-foreground">総生徒数</p>
+                                </CardBody>
+                            </Card>
+                            <Card radius="sm" className="w-1/2" isPressable onPress={PushAchievementPage}>
+                                <CardHeader>
+                                    <div className="text-left">
+                                        <h1 className="text-2xl">
+                                            <strong>生徒の成績</strong>
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            成績の閲覧
+                                        </p>
                                     </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-                        <Card radius="sm" className="w-1/2" isPressable isDisabled={isLoading} onPress={PushNotificationPage}>
-                            <CardHeader>
-                                <div className="text-left">
-                                    <h1 className="text-2xl">
-                                        <strong>お知らせ作成</strong>
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        お知らせの作成と編集
-                                    </p>
-                                </div>
-                            </CardHeader>
-                            <CardBody>
-                                <div className="flex items-center space-x-4">
-                                    <Bell className="h-8 w-8 text-primary" />
-                                    <div>
-                                        <p className="text-2xl font-bold">{isLoading ? ("-") : (`${numberOfNotifications}件`)}</p>
-                                        <p className="text-sm text-[#696969] text-muted-foreground">総お知らせ件数</p>
+                                </CardHeader>
+                                <CardBody>
+                                    <div className="flex items-center space-x-4">
+                                        <Pencil className="h-8 w-8 text-primary" />
+                                        <div>
+                                            <p className="text-2xl font-bold">{"-"}</p>
+                                            <p className="text-sm text-[#696969] text-muted-foreground">総生徒数</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-                    </div>
-                    <Spacer />
-                    <div className="flex w-full gap-10">
-                        <Card radius="sm" className="w-1/2" isPressable isDisabled={isLoading} onPress={PushSettingPage}>
-                            <CardHeader>
-                                <div className="text-left">
-                                    <h1 className="text-2xl">
-                                        <strong>設定</strong>
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        メールアドレスや名前、パスワードの編集
-                                    </p>
-                                </div>
-                            </CardHeader>
-                            <CardBody>
-                                <div className="flex items-center space-x-4">
-                                    <Wrench className="h-8 w-8 text-primary" />
-                                    <div>
-                                        <p className="text-2xl font-bold">{isLoading ? ("-") : (loginuser.username)}</p>
-                                        <p className="text-sm text-[#696969] text-muted-foreground">現在の名前</p>
+                                </CardBody>
+                            </Card>
+                        </div>
+                        <Spacer />
+                        <div className="flex w-full gap-10">
+                            <Card radius="sm" className="w-1/2" isPressable onPress={PushRegisterPage}>
+                                <CardHeader>
+                                    <div className="text-left">
+                                        <h1 className="text-2xl">
+                                            <strong>ユーザー登録</strong>
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            生徒の新規登録と管理
+                                        </p>
                                     </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-                        <Card radius="sm" className="w-1/2">
-                            <CardBody></CardBody>
-                        </Card>
-                    </div>
-                </main>
+                                </CardHeader>
+                                <CardBody>
+                                    <div className="flex items-center space-x-4">
+                                        <Users className="h-8 w-8 text-primary" />
+                                        <div>
+                                            <p className="text-2xl font-bold">{isLoading ? ("-") : (`${numberOfStudent}人`)}</p>
+                                            <p className="text-sm text-[#696969] text-muted-foreground">総生徒数</p>
+                                        </div>
+                                    </div>
+                                </CardBody>
+                            </Card>
+                            <Card radius="sm" className="w-1/2" isPressable onPress={PushNotificationPage}>
+                                <CardHeader>
+                                    <div className="text-left">
+                                        <h1 className="text-2xl">
+                                            <strong>お知らせ作成</strong>
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            お知らせの作成と編集
+                                        </p>
+                                    </div>
+                                </CardHeader>
+                                <CardBody>
+                                    <div className="flex items-center space-x-4">
+                                        <Bell className="h-8 w-8 text-primary" />
+                                        <div>
+                                            <p className="text-2xl font-bold">{isLoading ? ("-") : (`${numberOfNotifications}件`)}</p>
+                                            <p className="text-sm text-[#696969] text-muted-foreground">総お知らせ件数</p>
+                                        </div>
+                                    </div>
+                                </CardBody>
+                            </Card>
+                        </div>
+                        <Spacer />
+                        <div className="flex w-full gap-10">
+                            <Card radius="sm" className="w-1/2" isPressable onPress={PushSettingPage}>
+                                <CardHeader>
+                                    <div className="text-left">
+                                        <h1 className="text-2xl">
+                                            <strong>設定</strong>
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            メールアドレスや名前、パスワードの編集
+                                        </p>
+                                    </div>
+                                </CardHeader>
+                                <CardBody>
+                                    <div className="flex items-center space-x-4">
+                                        <Wrench className="h-8 w-8 text-primary" />
+                                        <div>
+                                            <p className="text-2xl font-bold">{isLoading ? ("-") : (loginuser.username)}</p>
+                                            <p className="text-sm text-[#696969] text-muted-foreground">現在の名前</p>
+                                        </div>
+                                    </div>
+                                </CardBody>
+                            </Card>
+                            <Card radius="sm" className="w-1/2">
+                                <CardBody></CardBody>
+                            </Card>
+                        </div>
+                    </main>
+                )}
             </div>
         </>
     );

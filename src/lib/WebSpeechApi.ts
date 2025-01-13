@@ -1,4 +1,4 @@
-/* Web Speech Apiのライブラリ */
+/* Web Speech Api用ライブラリ */
 
 import toast from "react-hot-toast";
 

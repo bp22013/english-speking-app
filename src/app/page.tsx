@@ -2,11 +2,13 @@
 
 'use client';
 
-import './styles/globals.css'
+import { NextPage } from 'next';
 import LoginPage from './Login/page'
 
-export default function DefaultPage() {
+const DefaultPage: NextPage = () => {
     return (
         <LoginPage />
     );
 }
+
+export default DefaultPage;

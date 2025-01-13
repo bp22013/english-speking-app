@@ -7,6 +7,7 @@ import { Button, Input, Spinner, Card, CardHeader, CardBody, CardFooter, Divider
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { speak } from "@/lib/WebSpeechApi";
+import { NextPage } from "next";
 import { TrainingPageNavbar } from "@/app/components/Navbar/TrainingPageNavbar";
 import { StudentUseAuth } from "@/hooks/useAuth/StudentUseAuth";
 import { useSearchParams } from "next/navigation";
@@ -18,7 +19,7 @@ interface Question {
     correctAnswer: string;
 }
 
-const SolveIncorrectQuestionPage = () => {
+const SolveIncorrectQuestionPage: NextPage = () => {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswer, setUserAnswer] = useState("");

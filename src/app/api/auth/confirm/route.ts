@@ -3,10 +3,8 @@
 'use server';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/PrismaProvider';
 import bcrypt from 'bcrypt';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
     try {

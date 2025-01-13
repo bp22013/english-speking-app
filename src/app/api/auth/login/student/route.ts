@@ -4,12 +4,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/PrismaProvider';
 import { add } from 'date-fns';
 import bcrypt from 'bcrypt';
 import { cookies } from 'next/headers';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
     const data = await request.json();
@@ -77,7 +75,7 @@ export async function POST(request: NextRequest) {
 
         const oldtoken = (await cookie).has("studenttoken");
 
-        //古い生徒用JWTトークンがあれば削除する
+        // 古い生徒用JWTトークンがあれば削除する
         if (oldtoken) {
             (await cookie).delete("studenttoken");
         }

@@ -1,9 +1,7 @@
 /* 問題作成ページの問題情報を取得するAPI */
 
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/PrismaProvider";
 
 export async function POST(request: Request) {
     try {

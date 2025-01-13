@@ -1,3 +1,5 @@
+/* 管理者のパスワード確認時バリデーションスキーマ */
+
 import { z } from "zod";
 
 export const inputs = z.object({

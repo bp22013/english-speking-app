@@ -1,3 +1,5 @@
+/* 管理者のパスワード変更バリデーションスキーマ */
+
 import { z } from "zod";
 
 export const inputs = z

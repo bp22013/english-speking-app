@@ -1,3 +1,5 @@
+/* 生徒用情報変更フォームのバリデーションスキーマ */
+
 import { z } from "zod";
 
 export const inputs = z.object({

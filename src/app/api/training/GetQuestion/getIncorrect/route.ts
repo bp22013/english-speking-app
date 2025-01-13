@@ -3,9 +3,7 @@
 'use server';
 
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/PrismaProvider";
 
 // 配列をシャッフルする関数
 const shuffleArray = <T>(array: T[]): T[] => {

@@ -1,3 +1,5 @@
+/* 汎用プロバイダーライブラリ（NextUI） */
+
 'use client';
 
 import { NextUIProvider } from '@nextui-org/react';

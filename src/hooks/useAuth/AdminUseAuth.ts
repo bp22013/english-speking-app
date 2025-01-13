@@ -1,3 +1,5 @@
+/* 管理者用トークン有効性チェックフック */
+
 "use client";
 
 import { useRouter } from "next/navigation";

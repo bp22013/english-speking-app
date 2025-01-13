@@ -63,12 +63,12 @@ const ChangeNamePage: NextPage = () => {
                 <Card className="max-w-md w-full shadow-lg">
                     <CardHeader className="flex items-center justify-center h-16">
                         <div className="text-2xl font-bold mt-4">
-                            <p>名前変更</p>
+                            <p>管理者名の変更</p>
                         </div>
                     </CardHeader>
                     <Divider className="my-4" />
                     <CardBody>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-4">
                             <div className="justify-center items-center mx-auto">
                                 <p>現在の名前　:　{loginuser.username}</p>
                             </div>

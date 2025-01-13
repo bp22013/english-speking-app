@@ -4,13 +4,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/PrismaProvider';
 import { add } from 'date-fns';
 import { cookies } from 'next/headers';
 import { toZonedTime, format } from 'date-fns-tz';
 import bcrypt from 'bcrypt';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
     const data = await request.json();

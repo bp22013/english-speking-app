@@ -11,7 +11,7 @@ import { toZonedTime } from 'date-fns-tz';
 
 export async function POST(request: NextRequest) {
 
-    const strech = 10; //bcryptのhashストレッチ
+    const strech = parseInt(process.env.BCRYPT_STREACH || "default", 10); // bcryptのhashストレッチ
     const cookie = cookies();
 
     try {
@@ -33,6 +33,18 @@ export async function POST(request: NextRequest) {
         if (!email || !name || !password) {
             return NextResponse.json(
                 { message: "すべてのフィールドを入力してください", success: false },
+                { status: 400 }
+            );
+        }
+
+        // 既存のメールアドレスをチェック
+        const existingAdmin = await prisma.admin.findUnique({
+            where: { email: email }
+        });
+
+        if (existingAdmin) {
+            return NextResponse.json(
+                { message: "このメールアドレスは既に使用されています", success: false },
                 { status: 400 }
             );
         }
@@ -60,9 +72,8 @@ export async function POST(request: NextRequest) {
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error creating student:", error);
         return NextResponse.json(
-            { message: "サーバーエラーが発生しました", success: false },
+            { message: `サーバーエラーが発生しました: (${error})`, success: false },
             { status: 500 }
         );
     } finally {

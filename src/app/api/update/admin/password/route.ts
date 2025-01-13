@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
         }
 
         // パスワードをハッシュ化
-        const saltRounds = 10; // ストレッチングの強度を設定
-        const newHashedPassword = await bcrypt.hash(newPassword, saltRounds);
+        const strech = parseInt(process.env.BCRYPT_STREACH || "", 10); // ストレッチを設定
+        const newHashedPassword = await bcrypt.hash(newPassword, strech);
 
         // データベースの管理者パスワードを更新
         const updatedAdmin = await prisma.admin.update({

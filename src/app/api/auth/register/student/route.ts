@@ -10,8 +10,7 @@ import { add } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 
 export async function POST(request: NextRequest) {
-
-    const strech = 10; //bcryptのhashストレッチ
+    const strech = parseInt(process.env.BCRYPT_STREACH || "", 10); // bcryptのhashストレッチ
     const cookie = cookies();
 
     try {
@@ -24,7 +23,7 @@ export async function POST(request: NextRequest) {
         //トークンが存在しているか確認
         if (!token) {
             return NextResponse.json(
-                { error: "変更権限がありません" },
+                { message: "変更権限がありません", success: false },
                 { status: 401 }
             );
         }
@@ -33,6 +32,18 @@ export async function POST(request: NextRequest) {
         if (!studentId || !name || !password) {
             return NextResponse.json(
                 { message: "すべてのフィールドを入力してください", success: false },
+                { status: 400 }
+            );
+        }
+
+        // 既存の生徒IDをチェック
+        const existingStudent = await prisma.student.findUnique({
+            where: { studentId: studentId }
+        });
+
+        if (existingStudent) {
+            return NextResponse.json(
+                { message: "この生徒IDは既に使用されています", success: false },
                 { status: 400 }
             );
         }
@@ -47,11 +58,11 @@ export async function POST(request: NextRequest) {
         // データベースに新規生徒情報を作成
         const newStudent = await prisma.student.create({
             data: {
-                studentId: studentId,
-                name: name,
-                hashedPassword: hashedPassword,
+                studentId,
+                name,
+                hashedPassword,
                 createdAt: japanTime,
-                updatedAt: new Date(),
+                updatedAt: japanTime,
             },
         });
 
@@ -60,28 +71,36 @@ export async function POST(request: NextRequest) {
             select: { id: true },
         });
 
-        // 新規生徒にのみ `AssignedQuestion` を作成
-        const assignedQuestions = allQuestions.map((question) => ({
-            studentId: newStudent.id,
-            questionId: question.id,
-            isAnswered: false,
-            isCorrect: null,
-        }));
+        if (allQuestions.length > 0) {
+            // 新規生徒にのみ `AssignedQuestion` を作成
+            const assignedQuestions = allQuestions.map((question) => ({
+                studentId: newStudent.id,
+                questionId: question.id,
+                isAnswered: false,
+                isCorrect: null,
+            }));
 
-        await prisma.assignedQuestion.createMany({
-            data: assignedQuestions,
+            await prisma.assignedQuestion.createMany({
+                data: assignedQuestions,
+            });
+        }
+
+        return NextResponse.json({
+            message: "生徒の登録が完了しました",
+            success: true,
+            data: {
+                studentId: newStudent.studentId,
+                name: newStudent.name,
+            }
         });
 
-        return NextResponse.json(
-            { message: "生徒が正常に登録され、AssignedQuestionに問題が分配されました", success: true, newStudent },
-            { status: 200 }
-        );
     } catch (error) {
         console.error("Error creating student:", error);
-        return NextResponse.json(
-            { message: "サーバーエラーが発生しました", success: false },
-            { status: 500 }
-        );
+        return NextResponse.json({
+            message: "生徒の登録中にエラーが発生しました",
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error"
+        }, { status: 500 });
     } finally {
         await prisma.$disconnect();
     }

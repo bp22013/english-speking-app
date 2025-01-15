@@ -9,7 +9,7 @@ import { Training } from "./Training";
 const TrainingPage: NextPage = () => {
     return(
         <>
-            <div className='bg-blue-100 min-h-screen'>
+            <div className="bg-blue-100 min-h-screen flex flex-col">
                 <StudentNavigationbar/>
                 <Training/>
             </div>

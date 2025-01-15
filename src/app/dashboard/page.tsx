@@ -4,8 +4,7 @@
 
 import { NextPage } from "next";
 import { StudentNavigationbar } from "../components/Navbar/StudentNavbar";
-import { Image, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
-import { AssignedQuestionsStats } from './AchievementReferenceSheet'
+import { Image, Card, CardBody } from "@nextui-org/react";
 import { StudentUseAuth } from "@/hooks/useAuth/StudentUseAuth";
 
 const DashBoard: NextPage = () => {
@@ -54,16 +53,6 @@ const DashBoard: NextPage = () => {
                         </CardBody>
                     </Card>
                 </div>
-
-                <Card className="w-full">
-                    <CardHeader className="text-xl justify-center">
-                        <strong>トレーニングの成績</strong>
-                    </CardHeader>
-                    <Divider />
-                    <CardBody>
-                        <AssignedQuestionsStats studentId={loginuser.studentId} />
-                    </CardBody>
-                </Card>
             </div>
         </div>
     );

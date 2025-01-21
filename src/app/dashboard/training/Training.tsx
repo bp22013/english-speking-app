@@ -9,7 +9,7 @@ import { GoPencil } from "react-icons/go";
 import { StudentUseAuth } from '@/hooks/useAuth/StudentUseAuth';
 import dynamic from 'next/dynamic';
 import toast from 'react-hot-toast';
-import AssignedQuestionsStats from './AchievementReferenceSheet';
+import AssignedQuestionsStats from '@/app/components/graph/AchievementReferenceSheet';
 
 // Cardを動的インポートしてSSRを無効化
 const Card = dynamic(() => import('@nextui-org/react').then((mod) => mod.Card), { ssr: false });
@@ -37,7 +37,7 @@ export const Training = () => {
     // 復習するページに移動
     const PushIncorrectQuestionPage = () => {
         setIsPushing(true);
-        if (IncorrectLevel !== null || !Number.isNaN(level)) {
+        if (IncorrectLevel !== null || !Number.isNaN(IncorrectLevel)) {
             router.push(`/dashboard/training/IncorrectQuestionPage?level=${IncorrectLevel}`);
         } else {
             if (typeof window !== 'undefined') {

@@ -62,10 +62,10 @@ export const StudentNavigationbar = () => {
             if (response.ok) {
                 setUnreadCount(data.unreadCount || 0); // 通知数を更新
             } else {
-                console.error("Failed to fetch unread notifications:", data.error);
+                toast.error(`サーバーエラーが発生しました（${data.error}）`);
             }
         } catch (error) {
-            console.error("Error fetching unread notifications:", error);
+            toast.error(`不明なエラーが発生しました（${error}）`);
         }
     };
 

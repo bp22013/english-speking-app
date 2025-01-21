@@ -125,7 +125,7 @@ const Admindashboard: NextPage = () => {
                                     <div className="flex items-center space-x-4">
                                         <Pencil className="h-8 w-8 text-primary" />
                                         <div>
-                                            <p className="text-2xl font-bold">{"-"}</p>
+                                            <p className="text-2xl font-bold">{isLoading ? ("-") : (`${numberOfStudent}人`)}</p>
                                             <p className="text-sm text-[#696969] text-muted-foreground">総生徒数</p>
                                         </div>
                                     </div>

@@ -33,7 +33,7 @@ export const AdminUseAuth = () => {
                 } else {
                     // トークンが無効の場合、既存トーストを閉じてから新しいトーストを表示
                     if (!toastId) {
-                        const id = toast.error("トークンが無効です。ログインしてください。", {
+                        const id = toast.error("トークンが無効です。ログイbンしてください。", {
                             id: "auth-error", // 固定のIDを設定して重複を防ぐ
                         });
                         setToastId(id); // トーストIDを保存

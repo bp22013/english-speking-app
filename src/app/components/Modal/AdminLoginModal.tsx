@@ -121,7 +121,7 @@ export const AdminLoginModal: React.FC<AdminModalProps> = (props) => {
 
                                 <div className="flex py-2 px-1 justify-between">
                                     <Spacer className="px-14" />
-                                    <Link color="primary" href="#" size="sm">
+                                    <Link color="primary" href="/Login/requestResetPassword/ResetPassword" size="sm">
                                         パスワードを忘れた場合はこちら
                                     </Link>
                                 </div>

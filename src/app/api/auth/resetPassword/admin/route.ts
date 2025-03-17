@@ -10,6 +10,10 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 export async function POST(request: Request) {
   try {
     const { token, password } = await request.json();
+    return NextResponse.json(
+        { error: 'Token とパスワードは必須です' },
+        { status: 400 }
+      );
 
     if (!token || !password) {
       return NextResponse.json(
@@ -49,7 +53,7 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
     await prisma.admin.update({
       where: { id: adminId },
-      data: { hashedPassword },
+      data: { hashedPassword: hashedPassword },
     });
 
     return NextResponse.json({ message: 'パスワードの更新に成功しました' });

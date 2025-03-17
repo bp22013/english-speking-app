@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/PrismaProvider';
 import { SignJWT } from 'jose';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
@@ -22,29 +22,34 @@ export async function POST(request: Request) {
     // JWTトークンを生成（payload に adminId を含め、1時間有効とする）
     const token = await new SignJWT({ adminId: admin.id })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('1h')
+      .setExpirationTime('10m')
       .sign(secret);
 
     // パスワードリセットURLを作成
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/resetPassword?token=${token}`;
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/Login/requestResetPassword?token=${token}`;
 
-    // Resend ライブラリを利用してメール送信
-    const resend = new Resend(process.env.NEXT_PUBLIC_EMAIL_PROVIDER_KEY);
-    const emailResponse = await resend.emails.send({
-      from: 'Your App <no-reply@yourapp.com>',
-      to: email,
-      subject: 'パスワードリセットのご案内',
-      html: `<p>パスワードリセットをリクエストしました。<br>
-             下記のリンクをクリックして新しいパスワードを設定してください。<br>
-             <a href="${resetUrl}">${resetUrl}</a></p>`,
+    const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        auth: {
+            user: process.env.GMAILUSER,
+            pass: process.env.GMAILPASSWORD,
+        },
     });
 
-    if (!emailResponse) {
-      return NextResponse.json(
-        { error: 'メール送信に失敗しました' },
-        { status: 500 }
-      );
-    }
+    const toHostMailData = {
+        from: "masakiaokipiano@gmail.com",
+        to: email,
+        subject: `パスワードリセットのご案内`, // タイトル
+        text: `パスワードリセットのご案内`,
+        html: `<p>パスワードリセットをリクエストしました。<br>
+             下記のリンクをクリックして新しいパスワードを設定してください。<br>
+             <a href="${resetUrl}">${resetUrl}</a></p>`,
+    };
+
+    transporter.sendMail(toHostMailData, function (err: unknown, info: unknown) {
+        if (err) console.log(err);
+        else console.log(info);
+    });
 
     return NextResponse.json({ message: 'パスワードリセット用メールを送信しました' });
   } catch {

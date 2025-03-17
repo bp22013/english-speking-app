@@ -10,10 +10,7 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 export async function POST(request: Request) {
   try {
     const { token, password } = await request.json();
-    return NextResponse.json(
-        { error: 'Token とパスワードは必須です' },
-        { status: 400 }
-      );
+    
 
     if (!token || !password) {
       return NextResponse.json(
